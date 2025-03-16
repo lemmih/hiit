@@ -47,15 +47,25 @@
         # Initialize crane with our custom toolchain
         craneLib = (crane.mkLib pkgs).overrideToolchain rustToolchain;
 
+        # Common source filter for all Rust builds
+        # This filters out files not needed for the Rust compilation
+        src =
+          craneLib.cleanCargoSource (craneLib.path ./.)
+          // {
+            # Add additional Rust source files that might not be included by default
+            # For example, if you have files outside of src/ that are needed:
+            extraSrcGlobs = [];
+          };
+
         hiit-client-deps = craneLib.buildDepsOnly {
-          src = ./.;
+          inherit src;
           cargoExtraArgs = "--target wasm32-unknown-unknown --features hydrate --no-default-features";
           doCheck = false;
         };
 
         # Create a derivation for building the client-side Wasm using crane
         hiit-client = craneLib.buildPackage {
-          src = ./.;
+          inherit src;
           cargoArtifacts = hiit-client-deps;
           buildPhaseCargoCommand = "HOME=$PWD/tmp wasm-pack build --out-dir pkg --mode no-install --no-typescript --release --target web --out-name client --features hydrate --no-default-features";
           doNotPostBuildInstallCargoBinaries = true;
@@ -73,14 +83,14 @@
         };
 
         hiit-server-deps = craneLib.buildDepsOnly {
-          src = ./.;
+          inherit src;
           cargoExtraArgs = "--target wasm32-unknown-unknown --features ssr --no-default-features";
           doCheck = false;
         };
 
         # Create a derivation for building the server-side Wasm using crane
         hiit-server = craneLib.buildPackage {
-          src = ./.;
+          inherit src;
           cargoArtifacts = hiit-server-deps;
           buildPhaseCargoCommand = "HOME=$PWD/tmp worker-build --release --features ssr --no-default-features";
           doNotPostBuildInstallCargoBinaries = true;
@@ -98,10 +108,18 @@
           ];
         };
 
+        # For the main derivation, we need a different source set that includes non-Rust files
+        mainSrc = pkgs.lib.cleanSourceWith {
+          src = ./.;
+          filter = path: type:
+            (pkgs.lib.hasPrefix "${toString ./public}" path)
+            || (pkgs.lib.hasPrefix "${toString ./style}" path);
+        };
+
         # Create the main hiit derivation that combines everything
         hiit = pkgs.stdenv.mkDerivation {
           name = "hiit";
-          src = ./.;
+          src = mainSrc;
 
           nativeBuildInputs = with pkgs; [
             tailwindcss
