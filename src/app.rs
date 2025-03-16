@@ -3,6 +3,7 @@ use leptos_meta::*;
 use leptos_router::components::*;
 use leptos_router::*;
 
+#[cfg(feature = "ssr")]
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
         <!DOCTYPE html>
@@ -39,7 +40,7 @@ pub fn App() -> impl IntoView {
                             <Route
                                 path=path!("/")
                                 view=move || {
-                                    view! {}
+                                    "TBD"
                                 }
                             />
                         </Routes>

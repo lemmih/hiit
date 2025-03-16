@@ -223,7 +223,26 @@
           kill $GECKO_PID
           exit $TEST_EXIT
         '';
+
+        # Clippy check for client code
+        hiit-client-clippy = craneLib.cargoClippy {
+          inherit src;
+          cargoArtifacts = hiit-client-deps;
+          cargoClippyExtraArgs = "--target wasm32-unknown-unknown --features hydrate --no-default-features -- --deny warnings";
+        };
+
+        # Clippy check for server code
+        hiit-server-clippy = craneLib.cargoClippy {
+          inherit src;
+          cargoArtifacts = hiit-server-deps;
+          cargoClippyExtraArgs = "--target wasm32-unknown-unknown --features ssr --no-default-features -- --deny warnings";
+        };
       in {
+        checks = {
+          inherit hiit-client hiit-server;
+          inherit hiit-client-clippy hiit-server-clippy;
+        };
+
         packages = {
           inherit hiit hiit-client hiit-server;
           e2e = e2e.packages.${system}.default;
