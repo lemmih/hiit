@@ -15,6 +15,10 @@
       url = "path:./e2e";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    advisory-db = {
+      url = "github:rustsec/advisory-db";
+      flake = false;
+    };
   };
 
   outputs = {
@@ -27,6 +31,7 @@
     alejandra,
     crane,
     e2e,
+    advisory-db,
   }:
     utils.lib.eachDefaultSystem (
       system: let
@@ -249,6 +254,12 @@
           };
           hiit-toml-fmt = craneLib.taploFmt {
             src = pkgs.lib.sources.sourceFilesBySuffices src [".toml"];
+          };
+          hiit-audit = craneLib.cargoAudit {
+            inherit src advisory-db;
+          };
+          hiit-deny = craneLib.cargoDeny {
+            inherit src;
           };
         };
 
