@@ -1,47 +1,27 @@
-name = "proof-of-tests"
-main = "build/worker/shim.mjs"
+name = "hiit"
+main = "result/build/worker/shim.mjs"
 compatibility_date = "2024-09-19"
 
 routes = [
-    { pattern = "proof-of-tests.org", zone_name = "proof-of-tests.org", custom_domain = true },
+    { pattern = "hiit.erudify.org", zone_name = "erudify.org", custom_domain = true },
 ]
-
-d1_databases = [
-    { binding = "pot", database_name = "pot", database_id = "ea2f0cea-47cd-456f-b554-b03b1ec73ba1" },
-]
-
-[[r2_buckets]]
-binding = "wasm"
-bucket_name = "wasm"
 
 [assets]
-directory = "assets"
+directory = "result/assets"
 
 [build]
 command = """
-mkdir -p assets/pkg &&
-cp public/* assets/ &&
-npx @tailwindcss/cli --minify -i style/tailwind.css -o assets/style.css &&
-wasm-pack build --out-dir assets/pkg --no-typescript --release --target web --out-name client --features hydrate --no-default-features &&
-worker-build --release --features ssr --no-default-features
-"""
-
-[env.quick.build]
-command = """
-mkdir -p assets/pkg &&
-cp public/* assets/ &&
-npx @tailwindcss/cli --minify -i style/tailwind.css -o assets/style.css &&
-wasm-pack build --out-dir assets/pkg --no-typescript --no-opt --target web --out-name client --features hydrate --no-default-features &&
-worker-build --no-opt --features ssr --no-default-features
+nix build .#hiit
 """
 
 [env.prebuilt.build]
 command = ""
 
-[env.nix.build]
+[env.dev.build]
 command = """
-# nix build ..#pot-web &&
-rm -rf assets build &&
-cp -r result/assets assets &&
-cp -r result/build build
+mkdir -p result/assets/pkg &&
+cp public/* result/assets/ &&
+tailwindcss --minify -i style/tailwind.css -o result/assets/style.css &&
+wasm-pack build --out-dir result/assets/pkg --no-typescript --no-opt --target web --out-name client --features hydrate --no-default-features &&
+worker-build --no-opt --features ssr --no-default-features
 """

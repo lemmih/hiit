@@ -168,6 +168,31 @@
           kill $GECKO_PID
           exit $TEST_EXIT
         '';
+
+        # Create a deployment script for Cloudflare
+        hiit-deploy = pkgs.writeScriptBin "hiit-deploy" ''
+          #!${pkgs.bash}/bin/bash
+
+          # Create a temporary directory for the deployment
+          WORK_DIR=$(mktemp -d)
+          echo "Created temporary directory: $WORK_DIR"
+
+          # Copy the wrangler configuration
+          cp ${./wrangler.toml} $WORK_DIR/wrangler.toml
+          echo "Copied wrangler.toml to temporary directory"
+
+          # Link the hiit derivation output to 'result'
+          ln -s ${hiit} $WORK_DIR/result
+          echo "Linked hiit build to result"
+
+          # Change to the work directory
+          cd $WORK_DIR
+          echo "Changed to temporary directory"
+
+          # Run wrangler to deploy
+          echo "Deploying to Cloudflare..."
+          ${wrangler-bin}/bin/wrangler deploy --env prebuilt
+        '';
       in {
         packages = {
           inherit hiit hiit-client hiit-server;
@@ -179,6 +204,12 @@
         apps.default = {
           type = "app";
           program = "${hiit-dev}/bin/hiit-dev";
+        };
+
+        # Add the deployment app
+        apps.deploy = {
+          type = "app";
+          program = "${hiit-deploy}/bin/hiit-deploy";
         };
 
         apps.e2e-test = {
