@@ -236,6 +236,7 @@
           preview = {
             type = "app";
             program = "${hiit-dev}/bin/hiit-dev";
+            meta.description = "Run HIIT application in local development mode with wrangler";
           };
 
           default = preview;
@@ -244,12 +245,14 @@
           deploy = {
             type = "app";
             program = "${hiit-deploy}/bin/hiit-deploy";
+            meta.description = "Deploy HIIT application to Cloudflare Workers";
           };
 
           # End-to-end test runner
-          e2e-test = {
+          e2e = {
             type = "app";
             program = "${e2e-test}/bin/e2e-test";
+            meta.description = "Run end-to-end tests - requires a local firefox";
           };
         };
 
