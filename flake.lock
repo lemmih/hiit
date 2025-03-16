@@ -347,15 +347,16 @@
         ]
       },
       "locked": {
-        "lastModified": 1741918600,
-        "narHash": "sha256-+Epvy8gWPpcEzJxolYwOD53m/Z+dWCHyYu0X4UK/fe0=",
+        "lastModified": 1741918877,
+        "narHash": "sha256-rWMvmsw9uiePhkSg0H+kv/2WFbOhkNJZ8Y/gBwRDQAc=",
         "owner": "ryand56",
         "repo": "wrangler",
-        "rev": "cbeb2cfd027971354fd41a7bf9300b52cef54c12",
+        "rev": "ddf27ae56b7a064f06b69c8dbce2ddf775f5f0c8",
         "type": "github"
       },
       "original": {
         "owner": "ryand56",
+        "ref": "v4",
         "repo": "wrangler",
         "type": "github"
       }

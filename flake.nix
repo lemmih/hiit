@@ -4,7 +4,7 @@
     utils.url = "github:numtide/flake-utils";
     worker-build.url = "github:lemmih/nix-flakes?dir=worker-build";
     worker-build.inputs.nixpkgs.follows = "nixpkgs";
-    wrangler.url = "github:ryand56/wrangler";
+    wrangler.url = "github:ryand56/wrangler/v4";
     wrangler.inputs.nixpkgs.follows = "nixpkgs";
     rust-overlay.url = "github:oxalica/rust-overlay";
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
