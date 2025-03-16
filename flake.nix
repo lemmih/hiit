@@ -247,6 +247,9 @@
           hiit-server-fmt = craneLib.cargoFmt {
             inherit src;
           };
+          hiit-toml-fmt = craneLib.taploFmt {
+            src = pkgs.lib.sources.sourceFilesBySuffices src [".toml"];
+          };
         };
 
         packages = {

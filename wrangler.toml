@@ -3,7 +3,7 @@ main = "result/build/worker/shim.mjs"
 compatibility_date = "2024-09-19"
 
 routes = [
-    { pattern = "hiit.erudify.org", zone_name = "erudify.org", custom_domain = true },
+  { pattern = "hiit.erudify.org", zone_name = "erudify.org", custom_domain = true },
 ]
 
 [assets]
