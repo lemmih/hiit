@@ -128,26 +128,63 @@
           '';
         };
 
+        # Create a function to setup wrangler environment
+        makeWranglerScript = {
+          name,
+          wranglerArgs,
+          verbose ? false,
+        }:
+          pkgs.writeScriptBin name ''
+            #!${pkgs.bash}/bin/bash
+
+            # Create a temporary directory for the environment
+            WORK_DIR=$(mktemp -d)
+            ${
+              if verbose
+              then "echo \"Created temporary directory: $WORK_DIR\""
+              else ""
+            }
+
+            # Copy the wrangler configuration
+            cp ${./wrangler.toml} $WORK_DIR/wrangler.toml
+            ${
+              if verbose
+              then "echo \"Copied wrangler.toml to temporary directory\""
+              else ""
+            }
+
+            # Setup the environment
+            ln -s ${hiit} $WORK_DIR/result
+
+            # Change to the work directory
+            cd $WORK_DIR
+            ${
+              if verbose
+              then "echo \"Changed to temporary directory\""
+              else ""
+            }
+
+            # Run wrangler with the provided arguments
+            ${
+              if verbose
+              then "echo \"Running wrangler with args: ${wranglerArgs}...\""
+              else ""
+            }
+            exec ${wrangler-bin}/bin/wrangler ${wranglerArgs}
+          '';
+
         # Create a development environment with a script to run wrangler
-        hiit-dev = pkgs.writeScriptBin "hiit-dev" ''
-          #!${pkgs.bash}/bin/bash
+        hiit-dev = makeWranglerScript {
+          name = "hiit-dev";
+          wranglerArgs = "dev --env prebuilt --live-reload false";
+        };
 
-          # Create a temporary directory for the development environment
-          WORK_DIR=$(mktemp -d)
-
-          # Link the necessary directories
-          ln -s ${hiit}/assets $WORK_DIR/assets
-          ln -s ${hiit-server}/build $WORK_DIR/build
-
-          # Copy the wrangler configuration
-          cp ${./wrangler.toml} $WORK_DIR/wrangler.toml
-
-          # Change to the work directory
-          cd $WORK_DIR
-
-          # Run wrangler in development mode
-          exec ${wrangler-bin}/bin/wrangler dev --env prebuilt --live-reload false
-        '';
+        # Create a deployment script for Cloudflare
+        hiit-deploy = makeWranglerScript {
+          name = "hiit-deploy";
+          wranglerArgs = "deploy --env prebuilt";
+          verbose = true;
+        };
 
         e2e-test = pkgs.writeShellScriptBin "e2e-test" ''
           # Start the web service
@@ -168,53 +205,34 @@
           kill $GECKO_PID
           exit $TEST_EXIT
         '';
-
-        # Create a deployment script for Cloudflare
-        hiit-deploy = pkgs.writeScriptBin "hiit-deploy" ''
-          #!${pkgs.bash}/bin/bash
-
-          # Create a temporary directory for the deployment
-          WORK_DIR=$(mktemp -d)
-          echo "Created temporary directory: $WORK_DIR"
-
-          # Copy the wrangler configuration
-          cp ${./wrangler.toml} $WORK_DIR/wrangler.toml
-          echo "Copied wrangler.toml to temporary directory"
-
-          # Link the hiit derivation output to 'result'
-          ln -s ${hiit} $WORK_DIR/result
-          echo "Linked hiit build to result"
-
-          # Change to the work directory
-          cd $WORK_DIR
-          echo "Changed to temporary directory"
-
-          # Run wrangler to deploy
-          echo "Deploying to Cloudflare..."
-          ${wrangler-bin}/bin/wrangler deploy --env prebuilt
-        '';
       in {
         packages = {
           inherit hiit hiit-client hiit-server;
           e2e = e2e.packages.${system}.default;
+          wrangler = wrangler-bin;
           default = hiit;
         };
 
-        # Add the development app
-        apps.default = {
-          type = "app";
-          program = "${hiit-dev}/bin/hiit-dev";
-        };
+        apps = rec {
+          # Development app for local testing
+          preview = {
+            type = "app";
+            program = "${hiit-dev}/bin/hiit-dev";
+          };
 
-        # Add the deployment app
-        apps.deploy = {
-          type = "app";
-          program = "${hiit-deploy}/bin/hiit-deploy";
-        };
+          default = preview;
 
-        apps.e2e-test = {
-          type = "app";
-          program = "${e2e-test}/bin/e2e-test";
+          # Deployment app for Cloudflare
+          deploy = {
+            type = "app";
+            program = "${hiit-deploy}/bin/hiit-deploy";
+          };
+
+          # End-to-end test runner
+          e2e-test = {
+            type = "app";
+            program = "${e2e-test}/bin/e2e-test";
+          };
         };
 
         formatter = alejandra.packages.${system}.default;
