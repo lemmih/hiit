@@ -241,6 +241,12 @@
         checks = {
           inherit hiit-client hiit-server;
           inherit hiit-client-clippy hiit-server-clippy;
+          hiit-client-fmt = craneLib.cargoFmt {
+            inherit src;
+          };
+          hiit-server-fmt = craneLib.cargoFmt {
+            inherit src;
+          };
         };
 
         packages = {
