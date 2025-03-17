@@ -1,0 +1,42 @@
+name: Deploy
+
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}"
+  cancel-in-progress: "${{ github.ref != 'refs/heads/main' }}"
+
+on:
+  workflow_dispatch:
+  merge_group:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: read
+      id-token: write
+    if: github.event.pull_request.draft == false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+        with:
+          determinate: true
+      - uses: DeterminateSystems/flakehub-cache-action@main
+
+      - run: nix build .
+
+      - name: Dry Run
+        if: github.ref != 'refs/heads/main'
+        run: nix run .#deploy -- --dry-run
+
+      - name: Publish
+        if: github.ref == 'refs/heads/main'
+        run: nix run .#deploy
+        env:
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
