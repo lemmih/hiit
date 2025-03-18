@@ -194,7 +194,7 @@
               then "echo \"Running wrangler with args: ${wranglerArgs}...\""
               else ""
             }
-            exec ${wrangler-bin}/bin/wrangler ${wranglerArgs}
+            exec ${wrangler-bin}/bin/wrangler ${wranglerArgs} "$@"
           '';
 
         # Create a development environment with a script to run wrangler
