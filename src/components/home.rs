@@ -12,7 +12,7 @@ pub fn HomePage() -> impl IntoView {
     let on_card_click = move |routine: Routine| {
         log::info!("Routine selected: {}", routine.name);
         // Navigate to the timer page for this routine
-        let _ = navigate(&format!("/timer/{}", routine.id), Default::default());
+        navigate(&format!("/timer/{}", routine.id), Default::default());
     };
 
     // Create the callback once
@@ -31,11 +31,10 @@ pub fn HomePage() -> impl IntoView {
                 {routines
                     .into_iter()
                     .map(|ex| {
-                        let callback = card_callback.clone();
                         view! {
                             // Clone the callback for each item
                             <div class="h-full">
-                                <RoutineCard routine=ex on_click=callback />
+                                <RoutineCard routine=ex on_click=card_callback />
                             </div>
                         }
                     })

@@ -115,7 +115,7 @@ impl Routine {
 pub fn RoutineCard(routine: Routine, #[prop(optional)] on_click: Option<Callback<Routine>>) -> impl IntoView {
     let routine_for_click = routine.clone();
     let handle_click = move |_| {
-        if let Some(callback) = on_click.clone() {
+        if let Some(callback) = on_click {
             callback.run(routine_for_click.clone());
         }
     };
