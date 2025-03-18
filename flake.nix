@@ -118,7 +118,8 @@
           src = ./.;
           filter = path: type:
             (pkgs.lib.hasPrefix "${toString ./public}" path)
-            || (pkgs.lib.hasPrefix "${toString ./style}" path);
+            || (pkgs.lib.hasPrefix "${toString ./style}" path)
+            || (pkgs.lib.hasPrefix "${toString ./src}" path);
         };
 
         # Create the main hiit derivation that combines everything
@@ -132,7 +133,7 @@
 
           buildPhase = ''
             # Generate CSS
-            tailwindcss --minify -i $src/style/tailwind.css -o style.css
+            tailwindcss --content "$src/**" -i ./style/tailwind.css -o style.css
           '';
 
           installPhase = ''
@@ -193,7 +194,7 @@
               then "echo \"Running wrangler with args: ${wranglerArgs}...\""
               else ""
             }
-            exec ${wrangler-bin}/bin/wrangler ${wranglerArgs}
+            exec ${wrangler-bin}/bin/wrangler ${wranglerArgs} "$@"
           '';
 
         # Create a development environment with a script to run wrangler

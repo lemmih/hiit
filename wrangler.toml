@@ -23,5 +23,7 @@ mkdir -p result/assets/pkg &&
 cp public/* result/assets/ &&
 tailwindcss --minify -i style/tailwind.css -o result/assets/style.css &&
 wasm-pack build --out-dir result/assets/pkg --no-typescript --no-opt --target web --out-name client --features hydrate --no-default-features &&
-worker-build --no-opt --features ssr --no-default-features
+worker-build --no-opt --features ssr --no-default-features &&
+rm -fr result/build &&
+mv build result/
 """

@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::{ensure, Context, Result};
 use reqwest::StatusCode;
 use std::time::Duration;
 use thirtyfour::prelude::*;
@@ -50,6 +50,75 @@ async fn main() -> Result<()> {
         .await
         .context("Failed to connect to WebDriver")?;
 
+    let ret = tests(&driver).await;
+
+    // Clean up
+    driver.quit().await.context("Failed to quit WebDriver session")?;
+
+    match ret {
+        Ok(_) => {
+            println!("E2E test passed successfully!");
+            Ok(())
+        }
+        Err(e) => {
+            println!("E2E test failed!");
+            Err(e)
+        }
+    }
+}
+
+async fn tests(driver: &WebDriver) -> Result<()> {
+    check_title(driver, "HIIT").await?;
+
+    // Verify the header is present
+    {
+        let header = driver.find(By::Tag("h1")).await.context("Failed to find header")?;
+        let header_text = header.text().await.context("Failed to get header text")?;
+        ensure!(
+            header_text.contains("HIIT Workout App"),
+            "Header '{}' does not contain 'HIIT Workout App'",
+            header_text
+        );
+    }
+
+    // Check built-in routines
+    {
+        // Find cards with class cursor-pointer and make sure that there are 3 or more.
+        let cards = driver
+            .find_all(By::Css(".cursor-pointer"))
+            .await
+            .context("Failed to find cards")?;
+        ensure!(
+            cards.len() >= 2,
+            "Expected at least 2 cards with class 'cursor-pointer', but found {}",
+            cards.len()
+        );
+    }
+
+    // Verify that routines are clickable
+    {
+        // Find the first routine and click it
+        let first_routine = driver
+            .find(By::Css(".cursor-pointer"))
+            .await
+            .context("Failed to find first routine")?;
+        first_routine.click().await.context("Failed to click first routine")?;
+        // Check that there is a button with the text "Start Routine"
+        let start_routine_button = driver
+            .find(By::XPath("//button[contains(text(), 'Start Routine')]"))
+            .await
+            .context("Failed to find start routine button")?;
+        ensure!(start_routine_button
+            .is_displayed()
+            .await
+            .context("Start routine button is not displayed")?,);
+        // Navigate back to the start page
+        driver.back().await.context("Failed to navigate back")?;
+    }
+    Ok(())
+}
+
+async fn check_title(driver: &WebDriver, expected_title: &str) -> Result<()> {
     // Navigate to the website
     driver
         .goto("http://localhost:8787")
@@ -60,11 +129,11 @@ async fn main() -> Result<()> {
     let title = driver.title().await.context("Failed to get page title")?;
 
     // Check if title contains expected text
-    assert!(title.contains("HIIT"), "Page title '{}' does not contain 'HIIT'", title);
-
-    // Clean up
-    driver.quit().await.context("Failed to quit WebDriver session")?;
-
-    println!("E2E test passed successfully!");
+    ensure!(
+        title.contains(expected_title),
+        "Page title '{}' does not contain '{}'",
+        title,
+        expected_title
+    );
     Ok(())
 }

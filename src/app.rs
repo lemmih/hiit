@@ -3,6 +3,10 @@ use leptos_meta::*;
 use leptos_router::components::*;
 use leptos_router::*;
 
+// Import our components
+use crate::components::home::HomePage;
+use crate::components::timer::TimerPage;
+
 #[cfg(feature = "ssr")]
 pub fn shell(options: LeptosOptions) -> impl IntoView {
     view! {
@@ -17,7 +21,7 @@ pub fn shell(options: LeptosOptions) -> impl IntoView {
                 <HydrationScripts options />
                 <MetaTags />
             </head>
-            <body class="bg-sky-100">
+            <body class="bg-gray-100">
                 <App />
             </body>
         </html>
@@ -32,17 +36,15 @@ pub fn App() -> impl IntoView {
         <Stylesheet href="/style.css" />
         <Link rel="icon" type_="image/x-icon" href="/favicon.ico" />
 
-        <div class="bg-white" style:box-shadow="0 0px 5px rgba(0, 0, 0, 0.4)">
-            <div class="max-w-4xl mx-auto p-4">
+        <div class="min-h-screen bg-gray-100">
+            <div class="max-w-4xl mx-auto bg-white shadow-sm">
                 <Router>
                     <main>
-                        <Routes fallback=|| "Not found">
-                            <Route
-                                path=path!("/")
-                                view=move || {
-                                    "TBD"
-                                }
-                            />
+                        <Routes fallback=|| {
+                            view! { <div class="p-4 text-center">Page Not Found</div> }
+                        }>
+                            <Route path=path!("/") view=move || view! { <HomePage /> } />
+                            <Route path=path!("/timer/:id") view=move || view! { <TimerPage /> } />
                         </Routes>
                     </main>
                 </Router>
