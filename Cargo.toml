@@ -41,12 +41,14 @@ instant = { version = "0.1.13", features = ["wasm-bindgen"] }
 serde_json = "1.0"
 send_wrapper = "0.6.0"
 gloo-timers = "0.3.0"
+leptos-use = { version = "0.15", features = ["use_interval"] }
 worker-kv = "0.8.0"
 sha2 = "0.10.8"
 anyhow = "1.0.96"
 url = "2.5"
 base64 = "0.22"
 getrandom = "0.2"
+itertools = "0.14.0"
 
 [features]
 hydrate = ["leptos/hydrate"]
@@ -61,4 +63,5 @@ ssr = [
   # "dep:worker",
   "dep:worker-macros",
   "getrandom/js",
+  "leptos-use/ssr",
 ]

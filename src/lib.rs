@@ -1,5 +1,10 @@
 #![allow(non_snake_case)]
 mod app;
+pub mod components;
+pub mod data;
+
+pub use components::*;
+pub use data::*;
 
 #[cfg(feature = "hydrate")]
 #[wasm_bindgen::prelude::wasm_bindgen]
