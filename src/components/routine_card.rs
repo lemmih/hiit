@@ -1,25 +1,7 @@
+use crate::components::settings::WorkoutSettings;
 use itertools::Itertools;
 use leptos::prelude::*;
 use std::time::Duration;
-
-#[derive(Clone)]
-pub struct Settings {
-    pub high_intensity_duration: Duration,
-    pub rest_exercise_duration: Duration,
-    pub rest_set_duration: Duration,
-    pub sets: u32,
-}
-
-impl Default for Settings {
-    fn default() -> Self {
-        Self {
-            high_intensity_duration: Duration::from_secs(10),
-            rest_exercise_duration: Duration::from_secs(10),
-            rest_set_duration: Duration::from_secs(10),
-            sets: 3,
-        }
-    }
-}
 
 #[derive(Clone)]
 pub struct Stage {
@@ -33,7 +15,6 @@ pub struct Routine {
     pub id: String,
     pub name: String,
     pub description: String,
-    pub settings: Settings,
     pub exercises: Vec<String>,
 }
 
@@ -44,6 +25,9 @@ impl Routine {
 
     #[allow(unstable_name_collisions)]
     pub fn stages(&self) -> Vec<Stage> {
+        // Get global settings
+        let settings = WorkoutSettings::from_storage();
+
         // Prepare stage
         let prepare_stage = Stage {
             duration: Duration::from_secs(10),
@@ -53,21 +37,21 @@ impl Routine {
 
         // Create iterator of exercise stages
         let exercise_stages = self.exercises.iter().map(|exercise| Stage {
-            duration: self.settings.high_intensity_duration,
+            duration: Duration::from_secs(settings.high_intensity_duration_secs as u64),
             is_high_intensity: true,
             label: exercise.clone(),
         });
 
         // Create rest stage
         let rest_stage = Stage {
-            duration: self.settings.rest_exercise_duration,
+            duration: Duration::from_secs(settings.rest_exercise_duration_secs as u64),
             is_high_intensity: false,
             label: "Rest".to_string(),
         };
 
         // Create set break stage
         let set_break_stage = Stage {
-            duration: self.settings.rest_set_duration,
+            duration: Duration::from_secs(settings.rest_set_duration_secs as u64),
             is_high_intensity: false,
             label: "Set Break".to_string(),
         };
@@ -77,7 +61,7 @@ impl Routine {
 
         // Create iterator of sets and intersperse set breaks
         let all_stages = std::iter::repeat(single_set)
-            .take(self.settings.sets as usize)
+            .take(settings.sets as usize)
             .intersperse(vec![set_break_stage])
             .flatten();
 
