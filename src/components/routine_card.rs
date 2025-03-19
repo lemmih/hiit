@@ -13,9 +13,9 @@ pub struct Settings {
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            high_intensity_duration: Duration::from_secs(30),
-            rest_exercise_duration: Duration::from_secs(15),
-            rest_set_duration: Duration::from_secs(30),
+            high_intensity_duration: Duration::from_secs(10),
+            rest_exercise_duration: Duration::from_secs(10),
+            rest_set_duration: Duration::from_secs(10),
             sets: 3,
         }
     }
@@ -33,8 +33,6 @@ pub struct Routine {
     pub id: String,
     pub name: String,
     pub description: String,
-    pub target_area: String,
-    pub intensity: String,
     pub settings: Settings,
     pub exercises: Vec<String>,
 }
@@ -127,7 +125,6 @@ pub fn RoutineCard(routine: Routine, #[prop(optional)] on_click: Option<Callback
         >
             <div class="bg-gradient-to-r from-blue-500 to-indigo-600 py-3 px-4">
                 <h3 class="text-xl font-bold text-white">{routine.name.clone()}</h3>
-                <p class="text-blue-100 text-sm">{routine.target_area.clone()}- {routine.intensity.clone()}</p>
             </div>
             <div class="p-4">
                 <p class="text-gray-700 mb-3">{routine.description.clone()}</p>

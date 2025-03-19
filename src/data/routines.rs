@@ -6,8 +6,6 @@ pub fn get_routines() -> Vec<Routine> {
             id: "2".to_string(),
             name: "Strength Training".to_string(),
             description: "Build muscle and increase strength with this routine.".to_string(),
-            target_area: "Strength".to_string(),
-            intensity: "Medium".to_string(),
             settings: Default::default(),
             exercises: vec![
                 "Pushups".to_string(),
@@ -19,8 +17,6 @@ pub fn get_routines() -> Vec<Routine> {
             id: "3".to_string(),
             name: "Core".to_string(),
             description: "Improve flexibility and reduce muscle tension.".to_string(),
-            target_area: "Flexibility".to_string(),
-            intensity: "Low".to_string(),
             settings: Default::default(),
             exercises: vec![
                 "Low Plank".to_string(),
