@@ -60,7 +60,7 @@ pub fn TimerPage() -> impl IntoView {
 
                 // Create and speak the new utterance
                 if let Ok(utterance) = SpeechSynthesisUtterance::new_with_text(text) {
-                    let _ = speech.speak(&utterance);
+                    speech.speak(&utterance);
                 }
             }
         }
@@ -191,30 +191,6 @@ pub fn TimerPage() -> impl IntoView {
                                         .into_any()
                                 } else {
                                     view! {
-                                        // Calculate stage progress percentage
-
-                                        // Stage progress bar
-
-                                        // Calculate stage progress percentage
-
-                                        // Stage progress bar
-
-                                        // Calculate stage progress percentage
-
-                                        // Stage progress bar
-
-                                        // Calculate stage progress percentage
-
-                                        // Stage progress bar
-
-                                        // Calculate stage progress percentage
-
-                                        // Stage progress bar
-
-                                        // Calculate stage progress percentage
-
-                                        // Stage progress bar
-
                                         <div class="mt-4 text-center text-gray-500">
                                             "Workout Complete"
                                         </div>
