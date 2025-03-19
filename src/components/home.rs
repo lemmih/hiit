@@ -32,7 +32,6 @@ pub fn HomePage() -> impl IntoView {
                     .into_iter()
                     .map(|ex| {
                         view! {
-                            // Clone the callback for each item
                             <div class="h-full">
                                 <RoutineCard routine=ex on_click=card_callback />
                             </div>
@@ -40,6 +39,23 @@ pub fn HomePage() -> impl IntoView {
                     })
                     .collect::<Vec<_>>()}
             </div>
+
+            <footer class="mt-8 pt-4 border-t border-gray-200">
+                <div class="flex justify-center space-x-6 text-sm text-gray-600">
+                    <a href="/about" class="hover:text-gray-900 transition-colors">
+                        About
+                    </a>
+                    <a href="/settings" class="hover:text-gray-900 transition-colors">
+                        Settings
+                    </a>
+                    <a href="/science" class="hover:text-gray-900 transition-colors">
+                        Science
+                    </a>
+                    <a href="/exercises" class="hover:text-gray-900 transition-colors">
+                        Exercises
+                    </a>
+                </div>
+            </footer>
         </div>
     }
 }

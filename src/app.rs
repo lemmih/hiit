@@ -4,7 +4,9 @@ use leptos_router::components::*;
 use leptos_router::*;
 
 // Import our components
+use crate::components::about::AboutPage;
 use crate::components::home::HomePage;
+use crate::components::settings::SettingsPage;
 use crate::components::timer::TimerPage;
 
 #[cfg(feature = "ssr")]
@@ -45,6 +47,11 @@ pub fn App() -> impl IntoView {
                         }>
                             <Route path=path!("/") view=move || view! { <HomePage /> } />
                             <Route path=path!("/timer/:id") view=move || view! { <TimerPage /> } />
+                            <Route path=path!("/about") view=move || view! { <AboutPage /> } />
+                            <Route
+                                path=path!("/settings")
+                                view=move || view! { <SettingsPage /> }
+                            />
                         </Routes>
                     </main>
                 </Router>
