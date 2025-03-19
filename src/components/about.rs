@@ -10,24 +10,54 @@ pub fn AboutPage() -> impl IntoView {
 
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <p class="mb-4">
-                    The HIIT Workout App is designed to help you perform effective high-intensity interval training
-                    workouts from anywhere, with no equipment required.
+                    {"Written in "}
+                    <a
+                        href="https://www.rust-lang.org"
+                        class="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors"
+                    >
+                        Rust
+                    </a>,
+                    built with {" "}
+                    <a
+                        href="https://nixos.org"
+                        class="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors"
+                    >
+                        Nix
+                    </a>, deployed with {" "}
+                    <a
+                        href="https://www.cloudflare.com"
+                        class="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors"
+                    >
+                        Cloudflare
+                    </a>, compiled to {" "}
+                    <a
+                        href="https://webassembly.org"
+                        class="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors"
+                    >
+                        WASM
+                    </a>, using the {" "}
+                    <a
+                        href="https://leptos.dev"
+                        class="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors"
+                    >
+                        Leptos
+                    </a> {" framework. Vibe coded using "}
+                    <a
+                        href="https://cursor.sh"
+                        class="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors"
+                    >
+                        Cursor
+                    </a>.
                 </p>
 
                 <p class="mb-4">
-                    High-Intensity Interval Training (HIIT) involves alternating between short, intense bursts of
-                    exercise and periods of rest or lower-intensity activity. This approach has been shown to
-                    improve cardiovascular health, increase metabolism, and burn calories efficiently.
-                </p>
-
-                <p class="mb-4">
-                    Our app provides carefully designed workout routines with timed intervals,
-                    clear instructions, and tracking to help you reach your fitness goals.
-                </p>
-
-                <p>
-                    This app was created with Rust and Leptos, focusing on performance and usability
-                    to provide you with the best possible workout experience.
+                    Browse the source code at {" "}
+                    <a
+                        href="https://github.com/lemmih/hiit"
+                        class="text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors"
+                    >
+                        "github.com/lemmih/hiit"
+                    </a>.
                 </p>
             </div>
 
