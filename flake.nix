@@ -68,23 +68,46 @@
           doCheck = false;
         };
 
-        # Create a derivation for building the client-side Wasm using crane
-        hiit-client = craneLib.buildPackage {
-          inherit src;
-          cargoArtifacts = hiit-client-deps;
-          buildPhaseCargoCommand = "HOME=$PWD/tmp wasm-pack build --out-dir pkg --mode no-install --no-typescript --release --target web --out-name client --features hydrate --no-default-features";
-          doNotPostBuildInstallCargoBinaries = true;
-          installPhaseCommand = ''
-            mkdir -p $out/pkg
-            cp -r pkg/* $out/pkg/
-          '';
-          doCheck = false;
+        # Function to create client-side Wasm builds with configurable options
+        makeHiitClientBuild = {
+          name,
+          optimized ? true,
+        }:
+          craneLib.buildPackage {
+            inherit src;
+            cargoArtifacts = hiit-client-deps;
+            buildPhaseCargoCommand = "HOME=$PWD/tmp wasm-pack build --out-dir pkg --mode no-install ${
+              if optimized
+              then "--release"
+              else "--no-opt"
+            } --no-typescript --target web --out-name client --features hydrate --no-default-features";
+            doNotPostBuildInstallCargoBinaries = true;
+            installPhaseCommand = ''
+              mkdir -p $out/pkg
+              cp -r pkg/* $out/pkg/
+            '';
+            doCheck = false;
 
-          nativeBuildInputs = with pkgs; [
-            wasm-pack
-            pinned-wasm-bindgen-cli
-            binaryen
-          ];
+            nativeBuildInputs = with pkgs;
+              [
+                wasm-pack
+                pinned-wasm-bindgen-cli
+              ]
+              ++ (
+                if optimized
+                then [binaryen]
+                else []
+              );
+          };
+
+        # Create optimized and development client builds
+        hiit-client = makeHiitClientBuild {
+          name = "hiit-client";
+          optimized = true;
+        };
+        hiit-client-dev = makeHiitClientBuild {
+          name = "hiit-client-dev";
+          optimized = false;
         };
 
         hiit-server-deps = craneLib.buildDepsOnly {
@@ -93,24 +116,47 @@
           doCheck = false;
         };
 
-        # Create a derivation for building the server-side Wasm using crane
-        hiit-server = craneLib.buildPackage {
-          inherit src;
-          cargoArtifacts = hiit-server-deps;
-          buildPhaseCargoCommand = "HOME=$PWD/tmp worker-build --release --features ssr --no-default-features";
-          doNotPostBuildInstallCargoBinaries = true;
-          doCheck = false;
-          installPhaseCommand = ''
-            mkdir -p $out/build
-            cp -r build/* $out/build/
-          '';
+        # Function to create server-side Wasm builds with configurable options
+        makeHiitServerBuild = {
+          name,
+          optimized ? true,
+        }:
+          craneLib.buildPackage {
+            inherit src;
+            cargoArtifacts = hiit-server-deps;
+            buildPhaseCargoCommand = "HOME=$PWD/tmp worker-build ${
+              if optimized
+              then "--release"
+              else "--no-opt"
+            } --features ssr --no-default-features";
+            doNotPostBuildInstallCargoBinaries = true;
+            doCheck = false;
+            installPhaseCommand = ''
+              mkdir -p $out/build
+              cp -r build/* $out/build/
+            '';
 
-          nativeBuildInputs = with pkgs; [
-            worker-build-bin
-            pinned-wasm-bindgen-cli
-            binaryen
-            esbuild
-          ];
+            nativeBuildInputs = with pkgs;
+              [
+                worker-build-bin
+                pinned-wasm-bindgen-cli
+                esbuild
+              ]
+              ++ (
+                if optimized
+                then [binaryen]
+                else []
+              );
+          };
+
+        # Create optimized and development server builds
+        hiit-server = makeHiitServerBuild {
+          name = "hiit-server";
+          optimized = true;
+        };
+        hiit-server-dev = makeHiitServerBuild {
+          name = "hiit-server-dev";
+          optimized = false;
         };
 
         # For the main derivation, we need a different source set that includes non-Rust files
@@ -122,34 +168,52 @@
             || (pkgs.lib.hasPrefix "${toString ./src}" path);
         };
 
-        # Create the main hiit derivation that combines everything
-        hiit = pkgs.stdenv.mkDerivation {
+        # Function to create a hiit derivation to reduce duplication
+        makeHiitDerivation = {
+          name,
+          clientBuild,
+          serverBuild,
+        }:
+          pkgs.stdenv.mkDerivation {
+            inherit name;
+            src = mainSrc;
+
+            nativeBuildInputs = with pkgs; [
+              tailwindcss
+            ];
+
+            buildPhase = ''
+              # Generate CSS
+              tailwindcss --content "$src/**" -i ./style/tailwind.css -o style.css
+            '';
+
+            installPhase = ''
+              # Create the output directory structure
+              mkdir -p $out/assets
+
+              # Copy static files
+              cp -r $src/public/* $out/assets/
+
+              # Copy generated CSS
+              cp style.css $out/assets/style.css
+
+              # Copy wasm build outputs from other derivations
+              cp -r ${clientBuild}/* $out/assets/
+              cp -r ${serverBuild}/build $out/
+            '';
+          };
+
+        # Create production and development builds using the function
+        hiit = makeHiitDerivation {
           name = "hiit";
-          src = mainSrc;
+          clientBuild = hiit-client;
+          serverBuild = hiit-server;
+        };
 
-          nativeBuildInputs = with pkgs; [
-            tailwindcss
-          ];
-
-          buildPhase = ''
-            # Generate CSS
-            tailwindcss --content "$src/**" -i ./style/tailwind.css -o style.css
-          '';
-
-          installPhase = ''
-            # Create the output directory structure
-            mkdir -p $out/assets
-
-            # Copy static files
-            cp -r $src/public/* $out/assets/
-
-            # Copy generated CSS
-            cp style.css $out/assets/style.css
-
-            # Copy wasm build outputs from other derivations
-            cp -r ${hiit-client}/* $out/assets/
-            cp -r ${hiit-server}/build $out/
-          '';
+        hiit-dev = makeHiitDerivation {
+          name = "hiit-dev";
+          clientBuild = hiit-client-dev;
+          serverBuild = hiit-server-dev;
         };
 
         # Create a function to setup wrangler environment
@@ -198,8 +262,8 @@
           '';
 
         # Create a development environment with a script to run wrangler
-        hiit-dev = makeWranglerScript {
-          name = "hiit-dev";
+        hiit-preview = makeWranglerScript {
+          name = "hiit-preview";
           wranglerArgs = "dev --env prebuilt --live-reload false";
         };
 
@@ -212,7 +276,7 @@
 
         e2e-test = pkgs.writeShellScriptBin "e2e-test" ''
           # Start the web service
-          ${hiit-dev}/bin/hiit-dev &
+          ${hiit-preview}/bin/hiit-preview &
           WEB_PID=$!
 
           # Geckodriver is quite verbose, so we redirect the output to /dev/null
@@ -265,7 +329,7 @@
         };
 
         packages = {
-          inherit hiit hiit-client hiit-server;
+          inherit hiit hiit-client hiit-server hiit-dev;
           e2e = e2e.packages.${system}.default;
           wrangler = wrangler-bin;
           default = hiit;
@@ -275,7 +339,7 @@
           # Development app for local testing
           preview = {
             type = "app";
-            program = "${hiit-dev}/bin/hiit-dev";
+            program = "${hiit-preview}/bin/hiit-preview";
             meta.description = "Run HIIT application in local development mode with wrangler";
           };
 
