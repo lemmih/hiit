@@ -36,6 +36,9 @@ web-sys = { version = "0.3.72", features = [
   "Storage",
   "Navigator",
   "StorageManager",
+  "Window",
+  "SpeechSynthesis",
+  "SpeechSynthesisUtterance",
 ] }
 instant = { version = "0.1.13", features = ["wasm-bindgen"] }
 serde_json = "1.0"
