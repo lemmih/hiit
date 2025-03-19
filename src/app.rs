@@ -5,7 +5,9 @@ use leptos_router::*;
 
 // Import our components
 use crate::components::about::AboutPage;
+use crate::components::exercises::ExercisesPage;
 use crate::components::home::HomePage;
+use crate::components::science::SciencePage;
 use crate::components::settings::SettingsPage;
 use crate::components::timer::TimerPage;
 
@@ -51,6 +53,11 @@ pub fn App() -> impl IntoView {
                             <Route
                                 path=path!("/settings")
                                 view=move || view! { <SettingsPage /> }
+                            />
+                            <Route path=path!("/science") view=move || view! { <SciencePage /> } />
+                            <Route
+                                path=path!("/exercises")
+                                view=move || view! { <ExercisesPage /> }
                             />
                         </Routes>
                     </main>

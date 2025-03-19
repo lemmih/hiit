@@ -272,10 +272,10 @@ pub fn SettingsPage() -> impl IntoView {
                 />
             </div>
 
-            <div class="text-center mt-6">
+            <div class="text-center">
                 <a
                     href="/"
-                    class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors"
+                    class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
                 >
                     Back to Workouts
                 </a>
