@@ -11,7 +11,7 @@ directory = "result/assets"
 
 [build]
 command = """
-nix build .#hiit
+nix build .#hiit-dev
 """
 
 [env.prebuilt.build]
