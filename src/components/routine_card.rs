@@ -69,7 +69,7 @@ impl Routine {
         std::iter::once(prepare_stage).chain(all_stages).collect()
     }
 
-    pub fn stage_at_t(&self, t: f64) -> Option<(Stage, Option<Stage>, f64)> {
+    pub fn stage_at_t(&self, t: f64) -> Option<(usize, Stage, Option<Stage>, f64)> {
         let stages = self.stages();
         let mut cumulative_duration = 0.0;
 
@@ -85,7 +85,7 @@ impl Routine {
                     None
                 };
                 let time_in_stage = t - stage_start;
-                return Some((current_stage.clone(), next_stage, time_in_stage));
+                return Some((i, current_stage.clone(), next_stage, time_in_stage));
             }
         }
 
