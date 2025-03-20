@@ -143,7 +143,7 @@ pub fn TimerPage() -> impl IntoView {
                         </div>
 
                         <div class="mb-6">
-                            <div class="text-gray-700 mb-2">{r.description.clone()}</div>
+                            <div class="text-gray-700 mb-2">{r.description()}</div>
                         </div>
 
                         <div class="mb-8">

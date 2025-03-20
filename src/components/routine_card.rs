@@ -14,11 +14,14 @@ pub struct Stage {
 pub struct Routine {
     pub id: String,
     pub name: String,
-    pub description: String,
     pub exercises: Vec<String>,
 }
 
 impl Routine {
+    pub fn description(&self) -> String {
+        self.exercises.join(", ")
+    }
+
     pub fn duration(&self) -> Duration {
         self.stages().iter().map(|stage| stage.duration).sum()
     }
@@ -111,7 +114,7 @@ pub fn RoutineCard(routine: Routine, #[prop(optional)] on_click: Option<Callback
                 <h3 class="text-xl font-bold text-white">{routine.name.clone()}</h3>
             </div>
             <div class="p-4">
-                <p class="text-gray-700 mb-3">{routine.description.clone()}</p>
+                <p class="text-gray-700 mb-3">{routine.description()}</p>
                 <div class="flex items-center justify-between">
                     <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
                         {format!("{} seconds", routine.duration().as_secs())}
