@@ -2,6 +2,7 @@ use crate::data::routines::get_routines;
 use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
 use leptos_use::{use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
+use std::collections::HashSet;
 use std::time::Duration;
 use web_sys::SpeechSynthesisUtterance;
 
@@ -33,6 +34,7 @@ pub fn TimerPage() -> impl IntoView {
     let routine = StoredValue::new(r);
 
     // Initialize interval (1 second = 1000ms)
+    let interval = 25;
     let UseIntervalReturn {
         counter,
         pause,
@@ -40,9 +42,14 @@ pub fn TimerPage() -> impl IntoView {
         is_active,
         reset,
         ..
-    } = use_interval_with_options(1000, UseIntervalOptions::default().immediate(false));
+    } = use_interval_with_options(interval, UseIntervalOptions::default().immediate(false));
 
-    let time_left = move || routine.read_value().duration() - Duration::from_secs(counter.get());
+    // Store already spoken announcements to avoid duplicates
+    let spoken_announcements = StoredValue::new(HashSet::<(usize, String)>::new());
+
+    let time_left = move || {
+        routine.read_value().duration() - Duration::from_secs_f64(counter.get() as f64 * interval as f64 / 1000.0)
+    };
 
     // Format time as MM:SS
     let format_time = move |seconds: u32| {
@@ -52,15 +59,27 @@ pub fn TimerPage() -> impl IntoView {
     };
 
     // Helper function to speak text using speech synthesis
-    let speak = move |text: &str| {
-        if let Some(window) = web_sys::window() {
-            if let Ok(speech) = window.speech_synthesis() {
-                // Cancel any ongoing speech
-                speech.cancel();
+    let speak = move |index: usize, text: &str| {
+        // Create a key from index and text
+        let announcement_key = (index, text.to_string());
 
-                // Create and speak the new utterance
-                if let Ok(utterance) = SpeechSynthesisUtterance::new_with_text(text) {
-                    speech.speak(&utterance);
+        // Check if this announcement has already been spoken
+        let mut spoken = spoken_announcements.get_value();
+        if !spoken.contains(&announcement_key) {
+            // Add it to the set of spoken announcements
+            spoken.insert(announcement_key);
+            spoken_announcements.set_value(spoken);
+
+            // Speak the announcement
+            if let Some(window) = web_sys::window() {
+                if let Ok(speech) = window.speech_synthesis() {
+                    // Cancel any ongoing speech
+                    speech.cancel();
+
+                    // Create and speak the new utterance
+                    if let Ok(utterance) = SpeechSynthesisUtterance::new_with_text(text) {
+                        speech.speak(&utterance);
+                    }
                 }
             }
         }
@@ -76,7 +95,7 @@ pub fn TimerPage() -> impl IntoView {
         let routine_val = routine.get_value();
         let elapsed = routine_val.duration().as_secs_f64() - time_left().as_secs_f64();
 
-        if let Some((current, _next, time_in_stage)) = routine_val.stage_at_t(elapsed) {
+        if let Some((stage_index, current, _next, time_in_stage)) = routine_val.stage_at_t(elapsed) {
             // Calculate remaining time in this stage
             let remaining = current.duration.as_secs_f64() - time_in_stage;
 
@@ -84,18 +103,25 @@ pub fn TimerPage() -> impl IntoView {
             if time_in_stage < 1_f64 {
                 // Announce the new stage name
                 let announcement = current.label.clone();
-                speak(&announcement);
+                speak(stage_index, &announcement);
             }
             // Handle countdown when approaching the end of a stage
-            if time_in_stage > 1.0 {
-                if remaining <= 3.5 && remaining > 2.5 {
-                    speak("3");
-                } else if remaining <= 2.5 && remaining > 1.5 {
-                    speak("2");
-                } else if remaining <= 1.5 && remaining > 0.5 {
-                    speak("1");
-                }
+            if remaining <= 3.0 {
+                speak(stage_index, "3");
             }
+            if remaining < 2.0 {
+                speak(stage_index, "2");
+            }
+            if remaining <= 1.0 {
+                speak(stage_index, "1");
+            }
+        }
+    });
+
+    // Reset spoken announcements when timer is reset
+    Effect::new(move |_| {
+        if counter.get() == 0 {
+            spoken_announcements.set_value(HashSet::new());
         }
     });
 
@@ -126,7 +152,7 @@ pub fn TimerPage() -> impl IntoView {
                             </div>
                             <div class="h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
                                 <div
-                                    class="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-1000"
+                                    class="h-full bg-gradient-to-r from-blue-500 to-indigo-600"
                                     style:width=move || {
                                         let duration = routine.get_value().duration().as_secs();
                                         format!(
@@ -140,27 +166,23 @@ pub fn TimerPage() -> impl IntoView {
                                 let routine = routine.get_value();
                                 let elapsed = routine.duration().as_secs_f64()
                                     - time_left().as_secs_f64();
-                                if let Some((current, next, time_in_stage)) = routine
+                                if let Some((_stage_index, current, next, time_in_stage)) = routine
                                     .stage_at_t(elapsed)
                                 {
                                     let stage_progress_pct = (time_in_stage
-                                        / (current.duration.as_secs_f64() - 1.0)) * 100.0;
+                                        / (current.duration.as_secs_f64())) * 100.0;
                                     view! {
-                                        // Calculate stage progress percentage
-
                                         <div class="mt-4 text-center">
                                             <div class="text-5xl font-semibold">
                                                 {current.label.clone()}
                                             </div>
-
-                                            // Stage progress bar
                                             <div class="h-2 bg-gray-200 rounded-full overflow-hidden mb-2">
                                                 <div
                                                     class=move || {
                                                         if current.is_high_intensity {
-                                                            "h-full bg-gradient-to-r from-red-500 to-orange-400 transition-all duration-1000 ease-linear"
+                                                            "h-full bg-gradient-to-r from-red-500 to-orange-400"
                                                         } else {
-                                                            "h-full bg-gradient-to-r from-green-400 to-teal-500 transition-all duration-1000 ease-linear"
+                                                            "h-full bg-gradient-to-r from-green-400 to-teal-500"
                                                         }
                                                     }
                                                     style:width=move || {
