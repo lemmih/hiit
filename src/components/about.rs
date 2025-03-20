@@ -10,6 +10,10 @@ pub fn AboutPage() -> impl IntoView {
 
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <p class="mb-4">
+                    {"This app is opinionated: High-intensity interval training is best, and exercises shouldn't require equipment."}
+                </p>
+
+                <p class="mb-4">
                     {"Written in "}
                     <a
                         href="https://www.rust-lang.org"
