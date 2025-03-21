@@ -1,3 +1,4 @@
+use crate::components::screen_wake_lock::ScreenWakeLock;
 use crate::data::routines::get_routines;
 use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
@@ -132,7 +133,14 @@ pub fn TimerPage() -> impl IntoView {
                 let r = routine.get_value();
                 view! {
                     <div class="bg-white rounded-lg shadow-md p-6">
-                        <div class="flex justify-between items-center mb-6">
+                        // Only render the ScreenWakeLock component when the timer is active
+                        {move || {
+                            if is_active.get() {
+                                view! { <ScreenWakeLock /> }.into_any()
+                            } else {
+                                view! { <div></div> }.into_any()
+                            }
+                        }} <div class="flex justify-between items-center mb-6">
                             <a href="/" class="text-blue-600 hover:text-blue-800">
                                 Back
                             </a>
@@ -140,13 +148,9 @@ pub fn TimerPage() -> impl IntoView {
                                 {r.name.clone()}
                             </h2>
                             <div class="w-6"></div>
-                        </div>
-
-                        <div class="mb-6">
+                        </div> <div class="mb-6">
                             <div class="text-gray-700 mb-2">{r.description()}</div>
-                        </div>
-
-                        <div class="mb-8">
+                        </div> <div class="mb-8">
                             <div class="text-lg font-bold text-center mb-2">
                                 {move || format_time(time_left().as_secs() as u32)}
                             </div>
@@ -220,9 +224,7 @@ pub fn TimerPage() -> impl IntoView {
                                         .into_any()
                                 }
                             }}
-                        </div>
-
-                        <div class="text-center">
+                        </div> <div class="text-center">
                             <div class="flex justify-center space-x-4">
                                 {if is_active.get() {
                                     view! {

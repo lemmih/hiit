@@ -32,6 +32,7 @@ log = "0.4.26"
 serde = "1.0.218"
 wasm-bindgen-futures = "0.4.45"
 futures-util = "0.3.30"
+js-sys = "0.3.72"
 web-sys = { version = "0.3.72", features = [
   "Storage",
   "Navigator",
@@ -39,6 +40,9 @@ web-sys = { version = "0.3.72", features = [
   "Window",
   "SpeechSynthesis",
   "SpeechSynthesisUtterance",
+  "WakeLock",
+  "WakeLockSentinel",
+  "WakeLockType",
 ] }
 instant = { version = "0.1.13", features = ["wasm-bindgen"] }
 serde_json = "1.0"

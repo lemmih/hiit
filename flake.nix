@@ -59,7 +59,9 @@
           // {
             # Add additional Rust source files that might not be included by default
             # For example, if you have files outside of src/ that are needed:
-            extraSrcGlobs = [];
+            extraSrcGlobs = [
+              ".cargo/config.toml"
+            ];
           };
 
         hiit-client-deps = craneLib.buildDepsOnly {

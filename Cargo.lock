@@ -805,6 +805,7 @@ dependencies = [
  "http",
  "instant",
  "itertools 0.14.0",
+ "js-sys",
  "leptos",
  "leptos-use",
  "leptos_axum",
