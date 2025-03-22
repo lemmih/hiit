@@ -76,14 +76,76 @@ pub fn SciencePage() -> impl IntoView {
           />
 
           <ScientificClaim
-            title=view! { "HIIT is Time-Efficient for Fat Loss" }
-            elaboration=view! {
-              "Research indicates that HIIT workouts can achieve similar or greater fat loss compared to traditional steady-state cardio in significantly less time."
+            title=view! {
+              "HIIT increases "
+              <Vo2max />
             }
-            doi=""
-            paper_title="Comparative Analysis of HIIT vs. Steady-State Exercise for Weight Management."
-            paper_source="International Journal of Sports Science, 18(3), 201-215"
-            paper_year="2022"
+            elaboration=view! {
+              "HIIT is more effective than endurance training at increasing "
+              <Vo2max />
+              ". Some caveats, see source."
+            }
+            doi="10.1007/s40279-015-0365-0"
+            paper_title="Effectiveness of High-Intensity Interval Training and Continuous Endurance Training for VO2max Improvements: A Systematic Review and Meta-Analysis of Controlled Trials"
+            paper_source="Sports Medicine"
+            paper_year="2015"
+          />
+
+          <ScientificClaim
+            title=view! {
+              "More exercise ⇒ more "
+              <Vo2max />
+              " gains"
+            }
+            elaboration=view! {
+              "Exercising twice per week yields better "
+              <Vo2max />
+              " gains than exercising once per week. The upper limit has yet to be found."
+            }
+            doi="10.3390/brainsci13040571"
+            paper_title="Effects of High-Intensity Interval Training on Executive Functions in College Students: Evidence from Different Doses"
+            paper_source="Brain Sciences"
+            paper_year="2023"
+          />
+
+          <ScientificClaim
+            title=view! { "HIIT is time-efficient" }
+            elaboration=view! {
+              "While endurance training yields similar "
+              <Vo2max />
+              " gains, HIIT is more time-efficient. Linked study shows 28 minutes of HIIT yielded similar results to 38 minutes of endurance training."
+            }
+            doi="10.3389/fphys.2018.01012"
+            paper_title="High-Intensity Interval Training Performed by Young Athletes: A Systematic Review and Meta-Analysis"
+            paper_source="Frontiers in Physiology"
+            paper_year="2018"
+          />
+
+          <ScientificClaim
+            title=view! { "HIIT increases HDL-C" }
+            elaboration=view! {
+              "Increase in HDL-C of 0.2 mmol/L after 8 weeks of HIIT. Some caveats, see source."
+            }
+            doi="10.1519/JSC.0b013e318198fd28"
+            paper_title="The Effect of a High-Intensity Interval Training Program on High-Density Lipoprotein Cholesterol in Young Men"
+            paper_source="Journal of Strength and Conditioning Research"
+            paper_year="2009"
+          />
+
+          <ScientificClaim
+            title=view! {
+              <Vo2max />
+              " is proportional to maximum heart rate over heart rate at rest"
+            }
+            elaboration=view! {
+              "Measuing "
+              <Vo2max />
+              " is difficult, but HR_max/HR_rest can be used as a proxy. Some caveats, see source."
+            }
+            doi="10.1007/s00421-003-0988-y"
+            paper_title="Estimation of VO2max from the ratio between HRmax and HRrest – the Heart Rate Ratio Method"
+            paper_source="European Journal of Applied Physiology"
+            paper_year="2004"
           />
 
         </div>
