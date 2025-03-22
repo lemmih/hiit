@@ -190,46 +190,46 @@ pub fn ExercisesPage() -> impl IntoView {
     });
 
     view! {
-        <div class="container mx-auto px-4 py-8">
-            <h1 class="text-2xl font-bold text-center mb-6">HIIT Exercises</h1>
+      <div class="container py-8 px-4 mx-auto">
+        <h1 class="mb-6 text-2xl font-bold text-center">HIIT Exercises</h1>
 
-            <div class="space-y-8">
-                {move || {
-                    exercises_by_group
-                        .get()
+        <div class="space-y-8">
+          {move || {
+            exercises_by_group
+              .get()
+              .iter()
+              .map(|(group_name, exercises)| {
+                view! {
+                  <div class="p-6 mb-6 bg-white rounded shadow">
+                    <h2 class="mb-4 text-xl font-bold">{*group_name}</h2>
+                    <div class="space-y-4">
+                      {exercises
                         .iter()
-                        .map(|(group_name, exercises)| {
-                            view! {
-                                <div class="bg-white p-6 rounded shadow mb-6">
-                                    <h2 class="text-xl font-bold mb-4">{*group_name}</h2>
-                                    <div class="space-y-4">
-                                        {exercises
-                                            .iter()
-                                            .map(|exercise| {
-                                                view! {
-                                                    <div class="border-b pb-4 last:border-0">
-                                                        <h3 class="text-lg font-semibold">{exercise.name}</h3>
-                                                        <p class="text-gray-600 mt-1">{exercise.description}</p>
-                                                    </div>
-                                                }
-                                            })
-                                            .collect::<Vec<_>>()}
-                                    </div>
-                                </div>
-                            }
+                        .map(|exercise| {
+                          view! {
+                            <div class="pb-4 border-b last:border-0">
+                              <h3 class="text-lg font-semibold">{exercise.name}</h3>
+                              <p class="mt-1 text-gray-600">{exercise.description}</p>
+                            </div>
+                          }
                         })
-                        .collect::<Vec<_>>()
-                }}
-            </div>
-
-            <div class="text-center mt-8">
-                <a
-                    href="/"
-                    class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-                >
-                    Back to Workouts
-                </a>
-            </div>
+                        .collect::<Vec<_>>()}
+                    </div>
+                  </div>
+                }
+              })
+              .collect::<Vec<_>>()
+          }}
         </div>
+
+        <div class="mt-8 text-center">
+          <a
+            href="/"
+            class="inline-block py-2 px-4 font-semibold text-white bg-blue-600 rounded-lg transition-colors hover:bg-blue-700"
+          >
+            Back to Workouts
+          </a>
+        </div>
+      </div>
     }
 }

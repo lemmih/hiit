@@ -106,22 +106,22 @@ pub fn RoutineCard(routine: Routine, #[prop(optional)] on_click: Option<Callback
     };
 
     view! {
-        <div
-            class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer transform hover:scale-102 transition-transform duration-300 h-full"
-            on:click=handle_click
-        >
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 py-3 px-4">
-                <h3 class="text-xl font-bold text-white">{routine.name.clone()}</h3>
-            </div>
-            <div class="p-4">
-                <p class="text-gray-700 mb-3">{routine.description()}</p>
-                <div class="flex items-center justify-between">
-                    <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">
-                        {format!("{} seconds", routine.duration().as_secs())}
-                    </span>
-                    <span class="text-sm text-gray-500">Tap to start</span>
-                </div>
-            </div>
+      <div
+        class="overflow-hidden h-full bg-white rounded-lg shadow-md transition-shadow transition-transform duration-300 duration-300 transform cursor-pointer hover:shadow-lg hover:scale-102"
+        on:click=handle_click
+      >
+        <div class="py-3 px-4 bg-gradient-to-r from-blue-500 to-indigo-600">
+          <h3 class="text-xl font-bold text-white">{routine.name.clone()}</h3>
         </div>
+        <div class="p-4">
+          <p class="mb-3 text-gray-700">{routine.description()}</p>
+          <div class="flex justify-between items-center">
+            <span class="py-0.5 px-2.5 text-xs font-semibold text-blue-800 bg-blue-100 rounded">
+              {format!("{} seconds", routine.duration().as_secs())}
+            </span>
+            <span class="text-sm text-gray-500">Tap to start</span>
+          </div>
+        </div>
+      </div>
     }
 }
