@@ -248,7 +248,7 @@ pub fn SettingsPage() -> impl IntoView {
             label="Exercise Rest Duration".to_string()
             value=rest_exercise_duration
             min=0
-            max=300
+            max=120
             step=5
             unit="s".to_string()
           />
@@ -257,7 +257,7 @@ pub fn SettingsPage() -> impl IntoView {
             label="Set Rest Duration".to_string()
             value=rest_set_duration
             min=0
-            max=300
+            max=120
             step=5
             unit="s".to_string()
           />
