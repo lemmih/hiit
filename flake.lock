@@ -364,11 +364,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1742321826,
-        "narHash": "sha256-9F3S151n5WAPWXM8UHMinleFiG/IBZU8gj9RdKmqbvQ=",
+        "lastModified": 1742574163,
+        "narHash": "sha256-AiNPGxxJx34Pzw/nHyc+G3ReahTHtnYnHw8J+tu1T8U=",
         "owner": "ryand56",
         "repo": "wrangler",
-        "rev": "358b07f67bf08d4ec5759a5eb5a6c7d971f33a00",
+        "rev": "ab47bf7855212cce49914684eb7e56a15bf0112e",
         "type": "github"
       },
       "original": {
