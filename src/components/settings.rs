@@ -104,29 +104,29 @@ fn RangeSlider(
     };
 
     view! {
-        <div class="mb-6">
-            <label for=id.clone() class="block text-sm font-medium text-gray-700 mb-2">
-                {label}
-                {
-                    let unit = unit.clone();
-                    move || format!(" ({}{})", value.get(), unit)
-                }
-            </label>
-            <input
-                type="range"
-                id=id
-                min=min.to_string()
-                max=max.to_string()
-                step=step.to_string()
-                value=move || value.get().to_string()
-                on:input=on_input
-                class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
-            />
-            <div class="flex justify-between text-xs text-gray-500 mt-1">
-                <span>{min} {unit.clone()}</span>
-                <span>{max} {unit.clone()}</span>
-            </div>
+      <div class="mb-6">
+        <label for=id.clone() class="block mb-2 text-sm font-medium text-gray-700">
+          {label}
+          {
+            let unit = unit.clone();
+            move || format!(" ({}{})", value.get(), unit)
+          }
+        </label>
+        <input
+          type="range"
+          id=id
+          min=min.to_string()
+          max=max.to_string()
+          step=step.to_string()
+          value=move || value.get().to_string()
+          on:input=on_input
+          class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+        />
+        <div class="flex justify-between mt-1 text-xs text-gray-500">
+          <span>{min} {unit.clone()}</span>
+          <span>{max} {unit.clone()}</span>
         </div>
+      </div>
     }
 }
 
@@ -188,98 +188,98 @@ pub fn SettingsPage() -> impl IntoView {
     let set_high_preset = move |_| apply_preset(60, 0, 15, 6);
 
     view! {
-        <div class="container mx-auto px-4 py-8 max-w-2xl">
-            <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6">Settings</h1>
+      <div class="container py-8 px-4 mx-auto max-w-2xl">
+        <h1 class="mb-6 text-2xl font-bold text-center text-gray-800 md:text-3xl">Settings</h1>
 
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <p class="text-sm text-gray-600 mb-4 text-center">
-                    Settings are automatically saved as you adjust them.
-                </p>
+        <div class="p-6 mb-6 bg-white rounded-lg shadow-md">
+          <p class="mb-4 text-sm text-center text-gray-600">
+            Settings are automatically saved as you adjust them.
+          </p>
 
-                <div class="flex justify-center gap-4 mb-6">
-                    <button
-                        class=move || {
-                            if is_low_preset() {
-                                "px-4 py-2 font-medium rounded-md bg-blue-600 text-white"
-                            } else {
-                                "px-4 py-2 font-medium rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-                            }
-                        }
-                        on:click=set_low_preset
-                    >
-                        Low
-                    </button>
-                    <button
-                        class=move || {
-                            if is_mid_preset() {
-                                "px-4 py-2 font-medium rounded-md bg-blue-600 text-white"
-                            } else {
-                                "px-4 py-2 font-medium rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-                            }
-                        }
-                        on:click=set_mid_preset
-                    >
-                        Mid
-                    </button>
-                    <button
-                        class=move || {
-                            if is_high_preset() {
-                                "px-4 py-2 font-medium rounded-md bg-blue-600 text-white"
-                            } else {
-                                "px-4 py-2 font-medium rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
-                            }
-                        }
-                        on:click=set_high_preset
-                    >
-                        High
-                    </button>
-                </div>
+          <div class="flex gap-4 justify-center mb-6">
+            <button
+              class=move || {
+                if is_low_preset() {
+                  "px-4 py-2 font-medium rounded-md bg-blue-600 text-white"
+                } else {
+                  "px-4 py-2 font-medium rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                }
+              }
+              on:click=set_low_preset
+            >
+              Low
+            </button>
+            <button
+              class=move || {
+                if is_mid_preset() {
+                  "px-4 py-2 font-medium rounded-md bg-blue-600 text-white"
+                } else {
+                  "px-4 py-2 font-medium rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                }
+              }
+              on:click=set_mid_preset
+            >
+              Mid
+            </button>
+            <button
+              class=move || {
+                if is_high_preset() {
+                  "px-4 py-2 font-medium rounded-md bg-blue-600 text-white"
+                } else {
+                  "px-4 py-2 font-medium rounded-md bg-white border border-gray-300 text-gray-700 hover:bg-gray-50"
+                }
+              }
+              on:click=set_high_preset
+            >
+              High
+            </button>
+          </div>
 
-                <RangeSlider
-                    label="High Intensity Duration".to_string()
-                    value=high_intensity_duration
-                    min=5
-                    max=300
-                    step=5
-                    unit="s".to_string()
-                />
+          <RangeSlider
+            label="High Intensity Duration".to_string()
+            value=high_intensity_duration
+            min=5
+            max=300
+            step=5
+            unit="s".to_string()
+          />
 
-                <RangeSlider
-                    label="Exercise Rest Duration".to_string()
-                    value=rest_exercise_duration
-                    min=0
-                    max=300
-                    step=5
-                    unit="s".to_string()
-                />
+          <RangeSlider
+            label="Exercise Rest Duration".to_string()
+            value=rest_exercise_duration
+            min=0
+            max=300
+            step=5
+            unit="s".to_string()
+          />
 
-                <RangeSlider
-                    label="Set Rest Duration".to_string()
-                    value=rest_set_duration
-                    min=0
-                    max=300
-                    step=5
-                    unit="s".to_string()
-                />
+          <RangeSlider
+            label="Set Rest Duration".to_string()
+            value=rest_set_duration
+            min=0
+            max=300
+            step=5
+            unit="s".to_string()
+          />
 
-                <RangeSlider
-                    label="Number of Sets".to_string()
-                    value=sets
-                    min=1
-                    max=30
-                    step=1
-                    unit="".to_string()
-                />
-            </div>
-
-            <div class="text-center">
-                <a
-                    href="/"
-                    class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-                >
-                    Back to Workouts
-                </a>
-            </div>
+          <RangeSlider
+            label="Number of Sets".to_string()
+            value=sets
+            min=1
+            max=30
+            step=1
+            unit="".to_string()
+          />
         </div>
+
+        <div class="text-center">
+          <a
+            href="/"
+            class="inline-block py-2 px-4 font-semibold text-white bg-blue-600 rounded-lg transition-colors hover:bg-blue-700"
+          >
+            Back to Workouts
+          </a>
+        </div>
+      </div>
     }
 }
