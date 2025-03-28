@@ -8,7 +8,7 @@ pub struct Exercise {
     pub description: &'static str,
 }
 
-pub const EXERCISES: [Exercise; 14] = [
+pub const EXERCISES: [Exercise; 15] = [
     Exercise {
         group: "Upper Body",
         name: "Push ups",
@@ -175,6 +175,17 @@ pub const EXERCISES: [Exercise; 14] = [
              Breathe naturally throughout the movement. For an easier version, bend your knees more. \
              For added difficulty, add a push-up when in the plank position or take smaller hand steps \
              to increase time under tension.",
+    },
+    Exercise {
+        group: "Full Body",
+        name: "Burpees",
+        description: "Start standing with feet shoulder-width apart. Lower into a squat position \
+             and place your hands on the ground in front of you. Kick your feet back to land in \
+             a high plank position. Perform a push-up, keeping your body straight from head to heels. \
+             Jump your feet back to your hands, landing in a squat position. Explosively jump up \
+             from the squat, reaching your arms overhead. Land softly and immediately begin the next rep. \
+             For a modified version, step back and forward instead of jumping, or skip the push-up. \
+             For increased intensity, add a tuck jump at the top or perform the push-up with a clap.",
     },
 ];
 

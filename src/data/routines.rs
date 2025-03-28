@@ -38,6 +38,7 @@ pub fn get_routines() -> Vec<Routine> {
                 "Mountain climber".to_string(),
                 "Superman".to_string(),
                 "Inchworm".to_string(),
+                "Burpees".to_string(),
             ],
         },
     ]
