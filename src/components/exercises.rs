@@ -8,7 +8,7 @@ pub struct Exercise {
     pub description: &'static str,
 }
 
-pub const EXERCISES: [Exercise; 15] = [
+pub const EXERCISES: [Exercise; 17] = [
     Exercise {
         group: "Upper Body",
         name: "Push ups",
@@ -18,6 +18,36 @@ pub const EXERCISES: [Exercise; 15] = [
              until your chest nearly touches the ground, then push back up \
              to starting position. Keep your neck neutral by looking slightly \
              ahead rather than down.",
+    },
+    Exercise {
+        group: "Upper Body",
+        name: "Hammer curls",
+        description: "Stand with feet hip-width apart, knees slightly bent, and core engaged. \
+             Hold dumbbells or weighted objects in each hand with arms fully extended, \
+             palms facing each other (neutral grip). Keep your elbows close to your sides \
+             throughout the movement. Exhale as you curl the weights toward your shoulders \
+             by bending at the elbows, maintaining the neutral grip. Focus on contracting \
+             your biceps at the top of the movement. Pause briefly at the top, then inhale \
+             as you slowly lower the weights back to the starting position. For proper form, \
+             keep your upper arms stationary, back straight, and wrists neutral. \
+             For increased difficulty: use heavier weights, slow down the lowering phase, \
+             or perform alternating arms. For reduced intensity: use lighter weights, \
+             perform seated hammer curls, or reduce the range of motion.",
+    },
+    Exercise {
+        group: "Upper Body",
+        name: "Skull crushers",
+        description: "Lie on a bench or mat with knees bent and feet flat on the floor. \
+             Hold dumbbells or a weighted object with both hands, arms extended above your chest, \
+             palms facing each other. Keep your upper arms stationary and perpendicular to the floor. \
+             Slowly bend your elbows to lower the weight behind your head until your forearms \
+             are approximately parallel to the floor. Keep your elbows pointing forward and close \
+             to your head. Pause briefly, then engage your triceps to extend your arms back to \
+             the starting position. Exhale as you extend your arms, inhale as you lower the weight. \
+             For increased difficulty: use heavier weights, slow down the lowering phase, \
+             or perform single-arm skull crushers. For reduced intensity: use lighter weights, \
+             perform seated skull crushers, or reduce the range of motion. \
+             For a variation, try performing them with a resistance band or with your feet elevated.",
     },
     Exercise {
         group: "Upper Body",
