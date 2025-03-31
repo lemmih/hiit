@@ -8,7 +8,8 @@ pub fn get_routines() -> Vec<Routine> {
             exercises: vec![
                 "Push ups".to_string(),
                 "Overhead triceps".to_string(),
-                "Bicep curls".to_string(),
+                "Hammer curls".to_string(),
+                "Skull crushers".to_string(),
             ],
         },
         Routine {
