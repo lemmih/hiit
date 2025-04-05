@@ -3,18 +3,11 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
     utils.url = "github:numtide/flake-utils";
     worker-build.url = "github:lemmih/nix-flakes?dir=worker-build";
-    worker-build.inputs.nixpkgs.follows = "nixpkgs";
     wrangler.url = "github:ryand56/wrangler/v4";
-    wrangler.inputs.nixpkgs.follows = "nixpkgs";
     rust-overlay.url = "github:oxalica/rust-overlay";
-    rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
     alejandra.url = "github:kamadorueda/alejandra/3.1.0";
-    alejandra.inputs.nixpkgs.follows = "nixpkgs";
     crane.url = "github:ipetkov/crane";
-    e2e = {
-      url = "path:./e2e";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    e2e.url = "path:./e2e";
     advisory-db = {
       url = "github:rustsec/advisory-db";
       flake = false;
