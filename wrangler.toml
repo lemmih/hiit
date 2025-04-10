@@ -22,7 +22,7 @@ main = "build/worker/shim.mjs"
 [env.local.build]
 command = ""
 [env.local.assets]
-directory = "assets"
+directory = "build/assets"
 
 [env.dev.build]
 command = """
