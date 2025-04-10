@@ -17,8 +17,8 @@ pub fn get_routines() -> Vec<Routine> {
             name: "Core".to_string(),
             exercises: vec![
                 "Low plank".to_string(),
-                "Russian twists".to_string(),
                 "Crunches".to_string(),
+                "Russian twists".to_string(),
                 "Bicycle crunches".to_string(),
             ],
         },
@@ -40,6 +40,16 @@ pub fn get_routines() -> Vec<Routine> {
                 "Superman".to_string(),
                 "Inchworm".to_string(),
                 "Burpees".to_string(),
+            ],
+        },
+        Routine {
+            id: "6".to_string(),
+            name: "Mobility".to_string(),
+            exercises: vec![
+                "Squat to Toe Touch".to_string(),
+                "Downward to Upward Dog".to_string(),
+                "Lunge and Reach".to_string(),
+                "Modified Butterfly Sit".to_string(),
             ],
         },
     ]

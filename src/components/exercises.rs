@@ -8,7 +8,7 @@ pub struct Exercise {
     pub description: &'static str,
 }
 
-pub const EXERCISES: [Exercise; 17] = [
+pub const EXERCISES: [Exercise; 21] = [
     Exercise {
         group: "Upper Body",
         name: "Push ups",
@@ -216,6 +216,57 @@ pub const EXERCISES: [Exercise; 17] = [
              from the squat, reaching your arms overhead. Land softly and immediately begin the next rep. \
              For a modified version, step back and forward instead of jumping, or skip the push-up. \
              For increased intensity, add a tuck jump at the top or perform the push-up with a clap.",
+    },
+    Exercise {
+        group: "Mobility",
+        name: "Squat to Toe Touch",
+        description: "Start in a deep squat position with feet shoulder-width apart, heels flat on the ground, \
+             and hands placed flat on the floor in front of you. Keep your chest up and back straight. \
+             From this position, slowly straighten your legs as much as possible while keeping your hands \
+             on the ground, feeling the stretch in your hamstrings and calves. Your body will form an inverted V shape. \
+             Hold the stretched position for a moment, then bend your knees to return to the starting squat position. \
+             Repeat the movement in a controlled manner. For increased difficulty, try to straighten your legs completely. \
+             For reduced intensity, maintain a slight bend in the knees at the top position. \
+             Focus on keeping your breathing steady throughout the exercise.",
+    },
+    Exercise {
+        group: "Mobility",
+        name: "Downward to Upward Dog",
+        description: "Begin in a high plank position with wrists under shoulders and body forming a straight line. \
+             Push your hips up and back while keeping arms and legs straight, forming an inverted V shape (Downward Dog). \
+             Press heels toward the floor and relax your neck. Hold for a breath, then lower your hips toward the floor \
+             while arching your back and pushing your chest forward (Upward Dog). Keep your shoulders away from your ears, \
+             thighs lifted off the floor, and gaze forward. Flow between these two positions with controlled breathing. \
+             For an easier version, perform Downward Dog with bent knees or substitute Cobra pose for Upward Dog by keeping \
+             your hips on the ground. For increased difficulty, hold each position longer, add a plank between transitions, \
+             or lift one leg during Downward Dog to challenge balance and engage your core more deeply.",
+    },
+    Exercise {
+        group: "Mobility",
+        name: "Lunge and Reach",
+        description: "Start standing with feet hip-width apart. Step forward with one leg into a lunge position, \
+             lowering your back knee toward the floor. Keep your front knee aligned with your ankle, not extending past your toes. \
+             Once in the lunge, reach both arms overhead, extending through your spine and creating length. \
+             Hold for a moment, feeling the stretch through your hip flexors, shoulders, and torso. \
+             From the overhead position, slowly curl your torso down and place one palm on the floor beside your front foot for support. \
+             Gently push your opposite elbow toward the floor, deepening the stretch through your shoulders and back. \
+             Return to standing and repeat on the opposite side, alternating legs with each repetition. \
+             Breathe deeply throughout the movement, exhaling as you reach and transition into the elbow stretch. \
+             For an easier version, take a smaller step forward or don't lower as deeply into the lunge. \
+             For increased difficulty, add a twist toward the front leg while in the lunge position, \
+             or hold the position longer to increase the stretch and challenge your balance.",
+    },
+    Exercise {
+        group: "Mobility",
+        name: "Modified Butterfly Sit",
+        description: "Sit on the floor with your back straight and bring the soles of your feet together in \
+            front of you, allowing your knees to fall outward. Place your hands slightly behind your hips with \
+            fingers pointing backward for support. Keeping your back straight, lift your hips slightly and slide \
+            forward, creating a butterfly position with your feet together. Maintain your knees at a comfortable \
+            height where you feel a gentle stretch in your inner thighs and hips. Breathe deeply and focus on \
+            relaxing your hip muscles with each exhale. For increased comfort, start with a folded blanket or \
+            cushion under your sitting bones. For a deeper stretch, gently press down on your inner thighs or \
+            extend your torso forward while maintaining a straight back.",
     },
 ];
 
