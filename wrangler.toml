@@ -17,6 +17,13 @@ nix build .#hiit-dev
 [env.prebuilt.build]
 command = ""
 
+[env.local]
+main = "build/worker/shim.mjs"
+[env.local.build]
+command = ""
+[env.local.assets]
+directory = "assets"
+
 [env.dev.build]
 command = """
 mkdir -p result/assets/pkg &&

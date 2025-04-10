@@ -105,11 +105,18 @@
           optimized = false;
         };
 
-        hiit-server-deps = craneLib.buildDepsOnly {
-          inherit src;
-          cargoExtraArgs = "--target wasm32-unknown-unknown --features ssr --no-default-features";
-          doCheck = false;
-        };
+        # Function to create server dependencies with configurable cargo arguments
+        makeHiitServerDeps = {profile ? ""}:
+          craneLib.buildDepsOnly {
+            inherit src;
+            CARGO_PROFILE = profile;
+            cargoCheckCommand = "true";
+            cargoExtraArgs = "--target wasm32-unknown-unknown --features ssr --no-default-features";
+            doCheck = false;
+          };
+
+        # Default server dependencies
+        hiit-server-deps = makeHiitServerDeps {};
 
         # Function to create server-side Wasm builds with configurable options
         makeHiitServerBuild = {
@@ -118,11 +125,14 @@
         }:
           craneLib.buildPackage {
             inherit src;
-            cargoArtifacts = hiit-server-deps;
+            cargoArtifacts =
+              if optimized
+              then makeHiitServerDeps {profile = "release";}
+              else makeHiitServerDeps {profile = "dev";};
             buildPhaseCargoCommand = "HOME=$PWD/tmp worker-build ${
               if optimized
               then "--release"
-              else "--no-opt"
+              else "--no-opt --dev"
             } --features ssr --no-default-features";
             doNotPostBuildInstallCargoBinaries = true;
             doCheck = false;
@@ -324,7 +334,7 @@
         };
 
         packages = {
-          inherit hiit hiit-client hiit-server hiit-dev;
+          inherit hiit hiit-client hiit-server hiit-client-dev hiit-server-dev hiit-dev;
           e2e = e2e.packages.${system}.default;
           wrangler = wrangler-bin;
           default = hiit;
@@ -339,6 +349,84 @@
           };
 
           default = preview;
+
+          # Local development app that builds everything in place
+          local-dev = {
+            type = "app";
+            program = let
+              compile-client = pkgs.writeScriptBin "compile-client" ''
+                #!${pkgs.bash}/bin/bash
+                set -e
+
+                # Build client-side WASM
+                echo "Building client-side WASM..."
+                CARGO_TARGET_DIR=target_client ${pkgs.wasm-pack}/bin/wasm-pack build --out-dir build/assets/pkg --dev --mode no-install --no-opt --no-typescript --target web --out-name client --features hydrate --no-default-features
+              '';
+
+              compile-server = pkgs.writeScriptBin "compile-server" ''
+                #!${pkgs.bash}/bin/bash
+                set -e
+
+                # Build server-side WASM
+                echo "Building server-side WASM..."
+                CARGO_TARGET_DIR=target_server ${worker-build-bin}/bin/worker-build --no-opt --dev --features ssr --no-default-features
+              '';
+
+              compile-css = pkgs.writeScriptBin "compile-css" ''
+                #!${pkgs.bash}/bin/bash
+                set -e
+
+                echo "Generating CSS..."
+                ${pkgs.tailwindcss}/bin/tailwindcss -i ./style/tailwind.css -o build/assets/style.css
+              '';
+
+              build-script = pkgs.writeScriptBin "hiit-local-dev-build" ''
+                #!${pkgs.bash}/bin/bash
+                set -e
+
+                # Add wasm-bindgen-cli to PATH
+                export PATH="${pinned-wasm-bindgen-cli}/bin:$PATH"
+
+                echo "Starting build..."
+
+                # Create necessary directories
+                mkdir -p build/assets
+
+                # Build client and server WASM in parallel
+                time parallel ::: ${compile-css}/bin/compile-css ${compile-client}/bin/compile-client ${compile-server}/bin/compile-server
+
+                # Copy static files
+                echo "Copying static files..."
+                cp -r public/* build/assets/
+
+                echo "Build complete! Files are available in the build directory."
+                echo "You can now serve the files using 'wrangler dev --env local'"
+              '';
+              script = pkgs.writeScriptBin "hiit-local-dev" ''
+                #!${pkgs.bash}/bin/bash
+                set -e
+
+                # Run initial build
+                ${build-script}/bin/hiit-local-dev-build
+
+                # Watch for changes and rebuild
+                echo "Watching for changes..."
+                ${pkgs.watchexec}/bin/watchexec \
+                  --watch src \
+                  --watch style \
+                  --watch public \
+                  --watch Cargo.toml \
+                  --watch Cargo.lock \
+                  --watch tailwind.config.js \
+                  --ignore "**/target/**" \
+                  --ignore "**/build/**" \
+                  --ignore "**/pkg/**" \
+                  --ignore "**/.git/**" \
+                  -- ${build-script}/bin/hiit-local-dev-build
+              '';
+            in "${script}/bin/hiit-local-dev";
+            meta.description = "Build HIIT application locally for development with file watching";
+          };
 
           # Deployment app for Cloudflare
           deploy = {

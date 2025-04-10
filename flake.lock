@@ -20,9 +20,7 @@
       "inputs": {
         "fenix": "fenix",
         "flakeCompat": "flakeCompat",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "nixpkgs": "nixpkgs"
       },
       "locked": {
         "lastModified": 1730688725,
@@ -72,9 +70,7 @@
     "e2e": {
       "inputs": {
         "crane": "crane_2",
-        "nixpkgs": [
-          "nixpkgs"
-        ],
+        "nixpkgs": "nixpkgs_2",
         "rust-overlay": "rust-overlay",
         "utils": "utils"
       },
@@ -167,6 +163,38 @@
     },
     "nixpkgs": {
       "locked": {
+        "lastModified": 1743775863,
+        "narHash": "sha256-gUnR9qcZK/O20oQFn1ijz7Nn66qG2Sp7JprDFl+oQBo=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "30705076a1748a2b2a1cf0539ea1665eef4d2f4a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-unstable-small",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1743703532,
+        "narHash": "sha256-s1KLDALEeqy+ttrvqV3jx9mBZEvmthQErTVOAzbjHZs=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "bdb91860de2f719b57eef819b5617762f7120c70",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-24.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_3": {
+      "locked": {
         "lastModified": 1741862977,
         "narHash": "sha256-prZ0M8vE/ghRGGZcflvxCu40ObKaB+ikn74/xQoNrGQ=",
         "owner": "NixOS",
@@ -181,13 +209,61 @@
         "type": "github"
       }
     },
+    "nixpkgs_4": {
+      "locked": {
+        "lastModified": 1743689281,
+        "narHash": "sha256-y7Hg5lwWhEOgflEHRfzSH96BOt26LaYfrYWzZ+VoVdg=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "2bfc080955153be0be56724be6fa5477b4eefabb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixpkgs-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_5": {
+      "locked": {
+        "lastModified": 1743095683,
+        "narHash": "sha256-gWd4urRoLRe8GLVC/3rYRae1h+xfQzt09xOfb0PaHSk=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "5e5402ecbcb27af32284d4a62553c019a3a49ea6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_6": {
+      "locked": {
+        "lastModified": 1743703532,
+        "narHash": "sha256-s1KLDALEeqy+ttrvqV3jx9mBZEvmthQErTVOAzbjHZs=",
+        "owner": "nixos",
+        "repo": "nixpkgs",
+        "rev": "bdb91860de2f719b57eef819b5617762f7120c70",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nixos",
+        "ref": "nixos-24.11",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "advisory-db": "advisory-db",
         "alejandra": "alejandra",
         "crane": "crane",
         "e2e": "e2e",
-        "nixpkgs": "nixpkgs",
+        "nixpkgs": "nixpkgs_3",
         "rust-overlay": "rust-overlay_2",
         "utils": "utils_2",
         "worker-build": "worker-build",
@@ -234,9 +310,7 @@
     },
     "rust-overlay_2": {
       "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "nixpkgs": "nixpkgs_4"
       },
       "locked": {
         "lastModified": 1741919466,
@@ -336,17 +410,15 @@
     "worker-build": {
       "inputs": {
         "flake-utils": "flake-utils",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "nixpkgs": "nixpkgs_5"
       },
       "locked": {
         "dir": "worker-build",
-        "lastModified": 1737371874,
-        "narHash": "sha256-ZV6ahpvP4leAzrWnvxmoQSIp54N/ZX5wj4LclPFNhhw=",
+        "lastModified": 1743346102,
+        "narHash": "sha256-MztWwt/J83QHfqk1G4SugekeaU+L6YXdKLc0ZFE3dec=",
         "owner": "lemmih",
         "repo": "nix-flakes",
-        "rev": "2c91ad548fce875ecb689c89fa176de9067a0ea0",
+        "rev": "570cf95732d43ce3ad8c597b014ad2f78d403f92",
         "type": "github"
       },
       "original": {
@@ -359,9 +431,7 @@
     "wrangler": {
       "inputs": {
         "flake-parts": "flake-parts",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
+        "nixpkgs": "nixpkgs_6"
       },
       "locked": {
         "lastModified": 1742574163,
