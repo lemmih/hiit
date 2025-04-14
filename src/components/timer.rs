@@ -1,11 +1,14 @@
 use crate::components::screen_wake_lock::ScreenWakeLock;
 use crate::data::routines::get_routines;
+use chrono::Utc;
 use leptos::prelude::*;
 use leptos_router::hooks::use_params_map;
 use leptos_use::{use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
 use std::collections::HashSet;
 use std::time::Duration;
 use web_sys::SpeechSynthesisUtterance;
+
+use super::settings::SettingsContext;
 
 #[component]
 pub fn TimerPage() -> impl IntoView {
@@ -33,6 +36,12 @@ pub fn TimerPage() -> impl IntoView {
         .into_any();
     };
     let routine = StoredValue::new(r);
+
+    // Get settings context
+    let SettingsContext {
+        settings,
+        update_settings,
+    } = expect_context::<SettingsContext>();
 
     // Initialize interval (1 second = 1000ms)
     let interval = 25;
@@ -123,6 +132,18 @@ pub fn TimerPage() -> impl IntoView {
     Effect::new(move |_| {
         if counter.get() == 0 {
             spoken_announcements.set_value(HashSet::new());
+        }
+    });
+
+    // Effect to handle routine completion
+    Effect::new(move |_| {
+        if time_left().as_secs() == 0 && is_active.get() {
+            // Record completion
+            let mut new_settings = settings.get();
+            new_settings
+                .routine_completions
+                .insert(routine.get_value().name.clone(), Utc::now());
+            update_settings.run(new_settings);
         }
     });
 
@@ -247,6 +268,23 @@ pub fn TimerPage() -> impl IntoView {
                     }
                   >
                     "Reset"
+                  </button>
+                  <button
+                    class="hidden py-2 px-4 text-white bg-purple-500 rounded transition-colors hover:bg-purple-600"
+                    on:click={
+                      let routine = routine.clone();
+                      let settings = settings.clone();
+                      let update_settings = update_settings.clone();
+                      move |_| {
+                        let mut new_settings = settings.get();
+                        new_settings
+                          .routine_completions
+                          .insert(routine.get_value().name.clone(), Utc::now());
+                        update_settings.run(new_settings);
+                      }
+                    }
+                  >
+                    "Debug: Mark Complete"
                   </button>
                 </div>
               </div>

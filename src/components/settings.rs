@@ -1,4 +1,6 @@
+use chrono::{DateTime, Utc};
 use leptos::prelude::*;
+use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct WorkoutSettings {
@@ -6,6 +8,7 @@ pub struct WorkoutSettings {
     pub rest_exercise_duration_secs: u32,
     pub rest_set_duration_secs: u32,
     pub sets: u32,
+    pub routine_completions: HashMap<String, DateTime<Utc>>,
 }
 
 impl Default for WorkoutSettings {
@@ -15,6 +18,7 @@ impl Default for WorkoutSettings {
             rest_exercise_duration_secs: 15,
             rest_set_duration_secs: 30,
             sets: 3,
+            routine_completions: HashMap::new(),
         }
     }
 }
@@ -39,11 +43,12 @@ impl serde::Serialize for WorkoutSettings {
         S: serde::Serializer,
     {
         use serde::ser::SerializeStruct;
-        let mut state = serializer.serialize_struct("WorkoutSettings", 4)?;
+        let mut state = serializer.serialize_struct("WorkoutSettings", 5)?;
         state.serialize_field("high_intensity_duration_secs", &self.high_intensity_duration_secs)?;
         state.serialize_field("rest_exercise_duration_secs", &self.rest_exercise_duration_secs)?;
         state.serialize_field("rest_set_duration_secs", &self.rest_set_duration_secs)?;
         state.serialize_field("sets", &self.sets)?;
+        state.serialize_field("routine_completions", &self.routine_completions)?;
         state.end()
     }
 }
@@ -60,6 +65,7 @@ impl<'de> serde::Deserialize<'de> for WorkoutSettings {
             rest_exercise_duration_secs: u32,
             rest_set_duration_secs: u32,
             sets: u32,
+            routine_completions: HashMap<String, DateTime<Utc>>,
         }
 
         let helper = SettingsHelper::deserialize(deserializer)?;
@@ -69,6 +75,7 @@ impl<'de> serde::Deserialize<'de> for WorkoutSettings {
             rest_exercise_duration_secs: helper.rest_exercise_duration_secs,
             rest_set_duration_secs: helper.rest_set_duration_secs,
             sets: helper.sets,
+            routine_completions: helper.routine_completions,
         })
     }
 }
@@ -169,6 +176,7 @@ pub fn SettingsPage() -> impl IntoView {
             rest_exercise_duration_secs: rest,
             rest_set_duration_secs: set_rest,
             sets: sets_count,
+            ..settings.get()
         });
     };
 

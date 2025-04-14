@@ -31,7 +31,7 @@ pub fn HomePage() -> impl IntoView {
             .map(|ex| {
               view! {
                 <div class="h-full">
-                  <RoutineCard routine=ex on_click=card_callback />
+                  <RoutineCard routine=StoredValue::new(ex) on_click=card_callback />
                 </div>
               }
             })

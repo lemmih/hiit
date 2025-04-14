@@ -4,6 +4,9 @@ use std::time::Duration;
 use thirtyfour::prelude::*;
 use tokio::time::sleep;
 
+mod settings;
+use settings::test_settings_presets;
+
 async fn wait_for_service(url: &str) -> Result<()> {
     let client = reqwest::Client::new();
     for _ in 0..60 {
@@ -115,6 +118,11 @@ async fn tests(driver: &WebDriver) -> Result<()> {
         // Navigate back to the start page
         driver.back().await.context("Failed to navigate back")?;
     }
+
+    // Test settings
+    test_settings_presets(driver).await?;
+    // test_settings_persistence(driver).await?;
+
     Ok(())
 }
 
