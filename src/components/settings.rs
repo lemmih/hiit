@@ -1,6 +1,6 @@
 use leptos::prelude::*;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct WorkoutSettings {
     pub high_intensity_duration_secs: u32,
     pub rest_exercise_duration_secs: u32,
@@ -20,20 +20,7 @@ impl Default for WorkoutSettings {
 }
 
 impl WorkoutSettings {
-    pub fn from_storage() -> Self {
-        if let Some(window) = web_sys::window() {
-            if let Ok(Some(storage)) = window.local_storage() {
-                if let Ok(Some(json)) = storage.get_item("hiit_settings") {
-                    if let Ok(settings) = serde_json::from_str::<WorkoutSettings>(&json) {
-                        return settings;
-                    }
-                }
-            }
-        }
-        Self::default()
-    }
-
-    pub fn save_to_storage(&self) -> bool {
+    fn save_to_storage(&self) -> bool {
         if let Some(window) = web_sys::window() {
             if let Ok(Some(storage)) = window.local_storage() {
                 if let Ok(json) = serde_json::to_string(self) {
@@ -90,7 +77,8 @@ impl<'de> serde::Deserialize<'de> for WorkoutSettings {
 #[component]
 fn RangeSlider(
     label: String,
-    #[prop(into)] value: RwSignal<u32>,
+    value: Signal<u32>,
+    on_change: Callback<u32>,
     min: u32,
     max: u32,
     step: u32,
@@ -100,7 +88,7 @@ fn RangeSlider(
 
     let on_input = move |ev| {
         let new_value = event_target_value(&ev).parse::<u32>().unwrap_or_default();
-        value.set(new_value);
+        on_change.run(new_value);
     };
 
     view! {
@@ -130,56 +118,83 @@ fn RangeSlider(
     }
 }
 
+// Create a context for the settings
+#[derive(Clone)]
+pub struct SettingsContext {
+    pub settings: Signal<WorkoutSettings>,
+    pub update_settings: Callback<WorkoutSettings>,
+}
+
+// Create a provider component for the settings context
 #[component]
-pub fn SettingsPage() -> impl IntoView {
-    // Load saved settings or use defaults
-    let initial_settings = WorkoutSettings::from_storage();
-
-    // Create RwSignals for each setting
-    let high_intensity_duration = RwSignal::new(initial_settings.high_intensity_duration_secs);
-    let rest_exercise_duration = RwSignal::new(initial_settings.rest_exercise_duration_secs);
-    let rest_set_duration = RwSignal::new(initial_settings.rest_set_duration_secs);
-    let sets = RwSignal::new(initial_settings.sets);
-
-    // Create a single effect that saves settings whenever any value changes
-    Effect::new(move |_| {
-        let new_settings = WorkoutSettings {
-            high_intensity_duration_secs: high_intensity_duration.get(),
-            rest_exercise_duration_secs: rest_exercise_duration.get(),
-            rest_set_duration_secs: rest_set_duration.get(),
-            sets: sets.get(),
-        };
+pub fn SettingsProvider(children: Children) -> impl IntoView {
+    let settings = RwSignal::new(WorkoutSettings::default());
+    let update_settings = Callback::new(move |new_settings: WorkoutSettings| {
+        settings.set(new_settings.clone());
         new_settings.save_to_storage();
     });
 
+    // Load settings from storage on the client side
+    Effect::new(move |_| {
+        if let Some(window) = web_sys::window() {
+            if let Ok(Some(storage)) = window.local_storage() {
+                if let Ok(Some(json)) = storage.get_item("hiit_settings") {
+                    if let Ok(loaded_settings) = serde_json::from_str::<WorkoutSettings>(&json) {
+                        settings.set(loaded_settings);
+                    }
+                }
+            }
+        }
+    });
+
+    provide_context(SettingsContext {
+        settings: settings.into(),
+        update_settings,
+    });
+
+    children()
+}
+
+#[component]
+pub fn SettingsPage() -> impl IntoView {
+    let SettingsContext {
+        settings,
+        update_settings,
+    } = expect_context::<SettingsContext>();
+
     // Create preset settings functions
     let apply_preset = move |high: u32, rest: u32, set_rest: u32, sets_count: u32| {
-        high_intensity_duration.set(high);
-        rest_exercise_duration.set(rest);
-        rest_set_duration.set(set_rest);
-        sets.set(sets_count);
+        update_settings.run(WorkoutSettings {
+            high_intensity_duration_secs: high,
+            rest_exercise_duration_secs: rest,
+            rest_set_duration_secs: set_rest,
+            sets: sets_count,
+        });
     };
 
     // Functions to check if the current settings match a preset
     let is_low_preset = move || {
-        high_intensity_duration.get() == 30
-            && rest_exercise_duration.get() == 15
-            && rest_set_duration.get() == 30
-            && sets.get() == 3
+        let s = settings.get();
+        s.high_intensity_duration_secs == 30
+            && s.rest_exercise_duration_secs == 15
+            && s.rest_set_duration_secs == 30
+            && s.sets == 3
     };
 
     let is_mid_preset = move || {
-        high_intensity_duration.get() == 45
-            && rest_exercise_duration.get() == 10
-            && rest_set_duration.get() == 15
-            && sets.get() == 4
+        let s = settings.get();
+        s.high_intensity_duration_secs == 45
+            && s.rest_exercise_duration_secs == 10
+            && s.rest_set_duration_secs == 15
+            && s.sets == 4
     };
 
     let is_high_preset = move || {
-        high_intensity_duration.get() == 60
-            && rest_exercise_duration.get() == 0
-            && rest_set_duration.get() == 15
-            && sets.get() == 6
+        let s = settings.get();
+        s.high_intensity_duration_secs == 60
+            && s.rest_exercise_duration_secs == 0
+            && s.rest_set_duration_secs == 15
+            && s.sets == 6
     };
 
     // Set up handlers for the preset buttons
@@ -237,7 +252,14 @@ pub fn SettingsPage() -> impl IntoView {
 
           <RangeSlider
             label="High Intensity Duration".to_string()
-            value=high_intensity_duration
+            value=Signal::derive(move || settings.get().high_intensity_duration_secs)
+            on_change=Callback::new(move |new_value| {
+              update_settings
+                .run(WorkoutSettings {
+                  high_intensity_duration_secs: new_value,
+                  ..settings.get()
+                });
+            })
             min=5
             max=300
             step=5
@@ -246,7 +268,14 @@ pub fn SettingsPage() -> impl IntoView {
 
           <RangeSlider
             label="Exercise Rest Duration".to_string()
-            value=rest_exercise_duration
+            value=Signal::derive(move || settings.get().rest_exercise_duration_secs)
+            on_change=Callback::new(move |new_value| {
+              update_settings
+                .run(WorkoutSettings {
+                  rest_exercise_duration_secs: new_value,
+                  ..settings.get()
+                });
+            })
             min=0
             max=120
             step=5
@@ -255,7 +284,14 @@ pub fn SettingsPage() -> impl IntoView {
 
           <RangeSlider
             label="Set Rest Duration".to_string()
-            value=rest_set_duration
+            value=Signal::derive(move || settings.get().rest_set_duration_secs)
+            on_change=Callback::new(move |new_value| {
+              update_settings
+                .run(WorkoutSettings {
+                  rest_set_duration_secs: new_value,
+                  ..settings.get()
+                });
+            })
             min=0
             max=120
             step=5
@@ -264,7 +300,14 @@ pub fn SettingsPage() -> impl IntoView {
 
           <RangeSlider
             label="Number of Sets".to_string()
-            value=sets
+            value=Signal::derive(move || settings.get().sets)
+            on_change=Callback::new(move |new_value| {
+              update_settings
+                .run(WorkoutSettings {
+                  sets: new_value,
+                  ..settings.get()
+                });
+            })
             min=1
             max=30
             step=1

@@ -1,7 +1,8 @@
-use crate::components::settings::WorkoutSettings;
 use itertools::Itertools;
 use leptos::prelude::*;
 use std::time::Duration;
+
+use super::settings::SettingsContext;
 
 #[derive(Clone)]
 pub struct Stage {
@@ -29,7 +30,7 @@ impl Routine {
     #[allow(unstable_name_collisions)]
     pub fn stages(&self) -> Vec<Stage> {
         // Get global settings
-        let settings = WorkoutSettings::from_storage();
+        let SettingsContext { settings, .. } = expect_context::<SettingsContext>();
 
         // Prepare stage
         let prepare_stage = Stage {
@@ -40,21 +41,21 @@ impl Routine {
 
         // Create iterator of exercise stages
         let exercise_stages = self.exercises.iter().map(|exercise| Stage {
-            duration: Duration::from_secs(settings.high_intensity_duration_secs as u64),
+            duration: Duration::from_secs(settings.get().high_intensity_duration_secs as u64),
             is_high_intensity: true,
             label: exercise.clone(),
         });
 
         // Create rest stage
         let rest_stage = Stage {
-            duration: Duration::from_secs(settings.rest_exercise_duration_secs as u64),
+            duration: Duration::from_secs(settings.get().rest_exercise_duration_secs as u64),
             is_high_intensity: false,
             label: "Rest".to_string(),
         };
 
         // Create set break stage
         let set_break_stage = Stage {
-            duration: Duration::from_secs(settings.rest_set_duration_secs as u64),
+            duration: Duration::from_secs(settings.get().rest_set_duration_secs as u64),
             is_high_intensity: false,
             label: "Set Break".to_string(),
         };
@@ -64,7 +65,7 @@ impl Routine {
 
         // Create iterator of sets and intersperse set breaks
         let all_stages = std::iter::repeat(single_set)
-            .take(settings.sets as usize)
+            .take(settings.get().sets as usize)
             .intersperse(vec![set_break_stage])
             .flatten();
 
@@ -117,7 +118,7 @@ pub fn RoutineCard(routine: Routine, #[prop(optional)] on_click: Option<Callback
           <p class="mb-3 text-gray-700">{routine.description()}</p>
           <div class="flex justify-between items-center">
             <span class="py-0.5 px-2.5 text-xs font-semibold text-blue-800 bg-blue-100 rounded">
-              {format!("{} seconds", routine.duration().as_secs())}
+              {move || format!("{} seconds", routine.duration().as_secs())}
             </span>
             <span class="text-sm text-gray-500">Tap to start</span>
           </div>
