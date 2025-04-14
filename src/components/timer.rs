@@ -272,9 +272,6 @@ pub fn TimerPage() -> impl IntoView {
                   <button
                     class="hidden py-2 px-4 text-white bg-purple-500 rounded transition-colors hover:bg-purple-600"
                     on:click={
-                      let routine = routine.clone();
-                      let settings = settings.clone();
-                      let update_settings = update_settings.clone();
                       move |_| {
                         let mut new_settings = settings.get();
                         new_settings
