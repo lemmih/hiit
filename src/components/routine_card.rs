@@ -1,3 +1,4 @@
+use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use itertools::Itertools;
 use leptos::prelude::*;
 use std::time::Duration;
@@ -97,13 +98,43 @@ impl Routine {
     }
 }
 
+fn format_last_completion(last_completion: Option<DateTime<Utc>>) -> String {
+    if let Some(completion_time) = last_completion {
+        let now = Utc::now();
+        let duration = now - completion_time;
+
+        if duration < ChronoDuration::hours(24) {
+            "done today".to_string()
+        } else if duration < ChronoDuration::hours(48) {
+            "done yesterday".to_string()
+        } else {
+            let days = duration.num_days();
+            format!("done {} days ago", days)
+        }
+    } else {
+        "".to_string()
+    }
+}
+
 #[component]
-pub fn RoutineCard(routine: Routine, #[prop(optional)] on_click: Option<Callback<Routine>>) -> impl IntoView {
-    let routine_for_click = routine.clone();
+pub fn RoutineCard(
+    #[prop(into)] routine: StoredValue<Routine>,
+    #[prop(optional)] on_click: Option<Callback<Routine>>,
+) -> impl IntoView {
+    let routine_for_click = routine.get_value();
     let handle_click = move |_| {
         if let Some(callback) = on_click {
             callback.run(routine_for_click.clone());
         }
+    };
+
+    let SettingsContext { settings, .. } = expect_context::<SettingsContext>();
+    let last_completion = move || {
+        settings
+            .get()
+            .routine_completions
+            .get(&routine.get_value().name)
+            .cloned()
     };
 
     view! {
@@ -112,15 +143,26 @@ pub fn RoutineCard(routine: Routine, #[prop(optional)] on_click: Option<Callback
         on:click=handle_click
       >
         <div class="py-3 px-4 bg-gradient-to-r from-blue-500 to-indigo-600">
-          <h3 class="text-xl font-bold text-white">{routine.name.clone()}</h3>
+          <h3 class="text-xl font-bold text-white">{routine.get_value().name.clone()}</h3>
         </div>
         <div class="p-4">
-          <p class="mb-3 text-gray-700">{routine.description()}</p>
+          <p class="mb-3 text-gray-700">{routine.get_value().description()}</p>
           <div class="flex justify-between items-center">
             <span class="py-0.5 px-2.5 text-xs font-semibold text-blue-800 bg-blue-100 rounded">
-              {move || format!("{} seconds", routine.duration().as_secs())}
+              {move || format!("{} seconds", routine.get_value().duration().as_secs())}
             </span>
-            <span class="text-sm text-gray-500">Tap to start</span>
+            {move || {
+              if let Some(completion_time) = last_completion() {
+                view! {
+                  <span class="text-sm text-gray-500">
+                    {format_last_completion(Some(completion_time))}
+                  </span>
+                }
+                  .into_any()
+              } else {
+                view! { <div></div> }.into_any()
+              }
+            }}
           </div>
         </div>
       </div>
