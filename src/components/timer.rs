@@ -140,10 +140,19 @@ pub fn TimerPage() -> impl IntoView {
         if time_left().as_secs() == 0 && is_active.get() {
             // Record completion
             let mut new_settings = settings.get();
-            new_settings
-                .routine_completions
-                .insert(routine.get_value().name.clone(), Utc::now());
-            update_settings.run(new_settings);
+            let routine_name = routine.get_value().name.clone();
+            let now = Utc::now();
+
+            // Only update if there's no previous completion or it was more than 10 seconds ago
+            let should_update = match new_settings.routine_completions.get(&routine_name) {
+                Some(last_completion) => (now - *last_completion).num_seconds() > 10,
+                None => true,
+            };
+
+            if should_update {
+                new_settings.routine_completions.insert(routine_name, now);
+                update_settings.run(new_settings);
+            }
         }
     });
 
