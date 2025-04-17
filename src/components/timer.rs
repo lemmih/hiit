@@ -48,7 +48,9 @@ fn play_audio(text: &str) -> bool {
         let _ = audio.add_event_listener_with_callback("error", error_callback.as_ref().unchecked_ref());
 
         // Try to play the audio
-        let _ = audio.play();
+        if audio.play().is_err() {
+            return tts_play(text);
+        }
 
         // Assuming it starts playing until we get an error event
         return true;
