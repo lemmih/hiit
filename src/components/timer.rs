@@ -19,6 +19,13 @@ fn text_to_mp3_path(text: &str) -> String {
 
 // Helper function to play audio with TTS fallback
 fn play_audio(text: &str) -> bool {
+    use std::cell::RefCell;
+
+    // Static audio element that will be initialized once
+    thread_local! {
+        static AUDIO_ELEMENT: RefCell<Option<HtmlAudioElement>> = const { RefCell::new(None) };
+    }
+
     fn tts_play(text: &str) -> bool {
         if let Some(window) = web_sys::window() {
             if let Ok(speech) = window.speech_synthesis() {
@@ -32,32 +39,41 @@ fn play_audio(text: &str) -> bool {
         false
     }
 
-    // Try to play MP3 file
-    if let Ok(audio) = HtmlAudioElement::new() {
-        let mp3_path = text_to_mp3_path(text);
-        audio.set_src(&mp3_path);
-
-        // Add event listener for error to provide fallback to TTS
-        let tts_text = text.to_string();
-        let error_callback = Closure::once(Box::new(move |_: web_sys::Event| {
-            // Error playing audio, fall back to TTS
-            tts_play(&tts_text);
-        }));
-
-        // Attempt to add the error event listener
-        let _ = audio.add_event_listener_with_callback("error", error_callback.as_ref().unchecked_ref());
-
-        // Try to play the audio
-        if audio.play().is_err() {
-            return tts_play(text);
+    // Initialize the audio element if it hasn't been created yet
+    AUDIO_ELEMENT.with(|audio_cell| {
+        if audio_cell.borrow().is_none() {
+            if let Ok(audio) = HtmlAudioElement::new() {
+                *audio_cell.borrow_mut() = Some(audio);
+            }
         }
 
-        // Assuming it starts playing until we get an error event
-        return true;
-    }
+        // Try to play MP3 file using our static audio element
+        if let Some(audio) = audio_cell.borrow().as_ref() {
+            let mp3_path = text_to_mp3_path(text);
+            audio.set_src(&mp3_path);
 
-    // Fall back to TTS if we couldn't create the audio element
-    tts_play(text)
+            // Add event listener for error to provide fallback to TTS
+            let tts_text = text.to_string();
+            let error_callback = Closure::once(Box::new(move |_: web_sys::Event| {
+                // Error playing audio, fall back to TTS
+                tts_play(&tts_text);
+            }));
+
+            // Attempt to add the error event listener
+            let _ = audio.add_event_listener_with_callback("error", error_callback.as_ref().unchecked_ref());
+
+            // Try to play the audio
+            if audio.play().is_err() {
+                return tts_play(text);
+            }
+
+            // Assuming it starts playing until we get an error event
+            return true;
+        }
+
+        // Fall back to TTS if we couldn't create the audio element
+        tts_play(text)
+    })
 }
 
 #[component]
