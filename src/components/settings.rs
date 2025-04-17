@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use leptos::prelude::*;
 use std::collections::HashMap;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct WorkoutSettings {
     pub high_intensity_duration_secs: u32,
     pub rest_exercise_duration_secs: u32,
@@ -59,13 +59,36 @@ impl<'de> serde::Deserialize<'de> for WorkoutSettings {
     where
         D: serde::Deserializer<'de>,
     {
+        // Create an inner helper struct with default for all fields
         #[derive(serde::Deserialize)]
         struct SettingsHelper {
+            #[serde(default = "default_high_intensity_duration")]
             high_intensity_duration_secs: u32,
+            #[serde(default = "default_rest_exercise_duration")]
             rest_exercise_duration_secs: u32,
+            #[serde(default = "default_rest_set_duration")]
             rest_set_duration_secs: u32,
+            #[serde(default = "default_sets")]
             sets: u32,
+            #[serde(default)]
             routine_completions: HashMap<String, DateTime<Utc>>,
+        }
+
+        // Helper functions to provide default values
+        fn default_high_intensity_duration() -> u32 {
+            WorkoutSettings::default().high_intensity_duration_secs
+        }
+
+        fn default_rest_exercise_duration() -> u32 {
+            WorkoutSettings::default().rest_exercise_duration_secs
+        }
+
+        fn default_rest_set_duration() -> u32 {
+            WorkoutSettings::default().rest_set_duration_secs
+        }
+
+        fn default_sets() -> u32 {
+            WorkoutSettings::default().sets
         }
 
         let helper = SettingsHelper::deserialize(deserializer)?;
@@ -332,5 +355,235 @@ pub fn SettingsPage() -> impl IntoView {
           </a>
         </div>
       </div>
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use chrono::{TimeZone, Utc};
+
+    // Add quickcheck imports for property testing
+    #[cfg(test)]
+    use quickcheck::{Arbitrary, Gen};
+
+    #[test]
+    fn test_deserialize_default_settings() {
+        // Basic JSON with default-like values
+        let json = r#"{
+            "high_intensity_duration_secs": 30,
+            "rest_exercise_duration_secs": 15,
+            "rest_set_duration_secs": 30,
+            "sets": 3,
+            "routine_completions": {}
+        }"#;
+
+        let settings: WorkoutSettings = serde_json::from_str(json).expect("Failed to deserialize");
+
+        assert_eq!(settings.high_intensity_duration_secs, 30);
+        assert_eq!(settings.rest_exercise_duration_secs, 15);
+        assert_eq!(settings.rest_set_duration_secs, 30);
+        assert_eq!(settings.sets, 3);
+        assert!(settings.routine_completions.is_empty());
+    }
+
+    #[test]
+    fn test_deserialize_custom_settings() {
+        // JSON with non-default values
+        let json = r#"{
+            "high_intensity_duration_secs": 60,
+            "rest_exercise_duration_secs": 20,
+            "rest_set_duration_secs": 45,
+            "sets": 5,
+            "routine_completions": {}
+        }"#;
+
+        let settings: WorkoutSettings = serde_json::from_str(json).expect("Failed to deserialize");
+
+        assert_eq!(settings.high_intensity_duration_secs, 60);
+        assert_eq!(settings.rest_exercise_duration_secs, 20);
+        assert_eq!(settings.rest_set_duration_secs, 45);
+        assert_eq!(settings.sets, 5);
+        assert!(settings.routine_completions.is_empty());
+    }
+
+    #[test]
+    fn test_deserialize_with_routine_completions() {
+        // Create a timestamp for testing
+        let timestamp = Utc.with_ymd_and_hms(2023, 5, 15, 10, 30, 0).unwrap();
+        let timestamp_str = timestamp.to_rfc3339();
+
+        // JSON with routine completions
+        let json = format!(
+            r#"{{
+            "high_intensity_duration_secs": 30,
+            "rest_exercise_duration_secs": 15,
+            "rest_set_duration_secs": 30,
+            "sets": 3,
+            "routine_completions": {{
+                "routine1": "{}",
+                "routine2": "{}"
+            }}
+        }}"#,
+            timestamp_str, timestamp_str
+        );
+
+        let settings: WorkoutSettings = serde_json::from_str(&json).expect("Failed to deserialize");
+
+        assert_eq!(settings.high_intensity_duration_secs, 30);
+        assert_eq!(settings.routine_completions.len(), 2);
+        assert!(settings.routine_completions.contains_key("routine1"));
+        assert!(settings.routine_completions.contains_key("routine2"));
+
+        // Check that timestamps were correctly deserialized
+        let routine1_completion = settings.routine_completions.get("routine1").unwrap();
+        assert_eq!(*routine1_completion, timestamp);
+    }
+
+    #[test]
+    fn test_serialize() {
+        // Create a settings object
+        let mut routine_completions = HashMap::new();
+        let timestamp = Utc.with_ymd_and_hms(2023, 5, 15, 10, 30, 0).unwrap();
+        routine_completions.insert("routine1".to_string(), timestamp);
+
+        let settings = WorkoutSettings {
+            high_intensity_duration_secs: 40,
+            rest_exercise_duration_secs: 10,
+            rest_set_duration_secs: 20,
+            sets: 4,
+            routine_completions,
+        };
+
+        // Serialize to JSON
+        let json = serde_json::to_string(&settings).expect("Failed to serialize");
+
+        // Parse the JSON to verify its structure
+        let parsed: serde_json::Value = serde_json::from_str(&json).expect("Invalid JSON");
+
+        assert_eq!(parsed["high_intensity_duration_secs"], 40);
+        assert_eq!(parsed["rest_exercise_duration_secs"], 10);
+        assert_eq!(parsed["rest_set_duration_secs"], 20);
+        assert_eq!(parsed["sets"], 4);
+        assert!(parsed["routine_completions"].is_object());
+        assert!(parsed["routine_completions"]
+            .as_object()
+            .unwrap()
+            .contains_key("routine1"));
+    }
+
+    #[test]
+    fn test_roundtrip_serialization() {
+        // Create a settings object
+        let mut routine_completions = HashMap::new();
+        let timestamp = Utc.with_ymd_and_hms(2023, 5, 15, 10, 30, 0).unwrap();
+        routine_completions.insert("routine1".to_string(), timestamp);
+
+        let original = WorkoutSettings {
+            high_intensity_duration_secs: 45,
+            rest_exercise_duration_secs: 15,
+            rest_set_duration_secs: 30,
+            sets: 5,
+            routine_completions,
+        };
+
+        // Serialize and then deserialize
+        let json = serde_json::to_string(&original).expect("Failed to serialize");
+        let deserialized: WorkoutSettings = serde_json::from_str(&json).expect("Failed to deserialize");
+
+        // Verify the deserialized object matches the original with a simple equality check
+        assert_eq!(deserialized, original);
+    }
+
+    #[test]
+    fn test_deserialize_missing_fields() {
+        // JSON missing some fields
+        let json = r#"{
+            "high_intensity_duration_secs": 30,
+            "rest_exercise_duration_secs": 15
+        }"#;
+
+        // This should now succeed with default values for missing fields
+        let result = serde_json::from_str::<WorkoutSettings>(json);
+        assert!(result.is_ok());
+
+        let settings = result.unwrap();
+        // Fields that were in the JSON should have those values
+        assert_eq!(settings.high_intensity_duration_secs, 30);
+        assert_eq!(settings.rest_exercise_duration_secs, 15);
+
+        // Missing fields should have default values
+        assert_eq!(
+            settings.rest_set_duration_secs,
+            WorkoutSettings::default().rest_set_duration_secs
+        );
+        assert_eq!(settings.sets, WorkoutSettings::default().sets);
+        assert!(settings.routine_completions.is_empty());
+    }
+
+    #[test]
+    fn test_deserialize_empty_json() {
+        // Completely empty JSON
+        let json = "{}";
+
+        // Should succeed with all default values
+        let result = serde_json::from_str::<WorkoutSettings>(json);
+        assert!(result.is_ok());
+
+        let settings = result.unwrap();
+        let defaults = WorkoutSettings::default();
+
+        // All fields should have default values
+        assert_eq!(settings, defaults);
+    }
+
+    // Implement Arbitrary trait for WorkoutSettings to generate random instances
+    #[cfg(test)]
+    impl Arbitrary for WorkoutSettings {
+        fn arbitrary(g: &mut Gen) -> Self {
+            // Generate random values within reasonable ranges
+            let high_intensity = u32::arbitrary(g);
+            let rest_exercise = u32::arbitrary(g);
+            let rest_set = u32::arbitrary(g);
+            let sets = u32::arbitrary(g);
+
+            // Generate a small number of routine completions
+            let mut routine_completions = HashMap::new();
+            let count = u32::arbitrary(g) % 10; // 0-9 completions
+
+            for i in 0..count {
+                // Generate a plausible timestamp within the last year
+                let days_ago = u32::arbitrary(g) % 365;
+                let timestamp = Utc::now() - chrono::Duration::days(days_ago as i64);
+                routine_completions.insert(format!("routine{}", i), timestamp);
+            }
+
+            WorkoutSettings {
+                high_intensity_duration_secs: high_intensity,
+                rest_exercise_duration_secs: rest_exercise,
+                rest_set_duration_secs: rest_set,
+                sets,
+                routine_completions,
+            }
+        }
+    }
+
+    // Property test for roundtrip serialization
+    #[quickcheck_macros::quickcheck]
+    fn prop_settings_roundtrip(settings: WorkoutSettings) -> bool {
+        // Serialize to JSON
+        let json = match serde_json::to_string(&settings) {
+            Ok(j) => j,
+            Err(_) => return false,
+        };
+
+        // Deserialize back
+        let deserialized: WorkoutSettings = match serde_json::from_str(&json) {
+            Ok(s) => s,
+            Err(_) => return false,
+        };
+
+        // Check equality directly thanks to PartialEq implementation
+        settings == deserialized
     }
 }
