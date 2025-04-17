@@ -6,9 +6,57 @@ use leptos_router::hooks::use_params_map;
 use leptos_use::{use_interval_with_options, UseIntervalOptions, UseIntervalReturn};
 use std::collections::HashSet;
 use std::time::Duration;
-use web_sys::SpeechSynthesisUtterance;
+use wasm_bindgen::prelude::*;
+use web_sys::{HtmlAudioElement, SpeechSynthesisUtterance};
 
 use super::settings::SettingsContext;
+
+// Helper function to convert announcement text to MP3 file path
+fn text_to_mp3_path(text: &str) -> String {
+    let filename = text.to_lowercase().replace(' ', "_");
+    format!("/audio/{}_freya.mp3", filename)
+}
+
+// Helper function to play audio with TTS fallback
+fn play_audio(text: &str) -> bool {
+    fn tts_play(text: &str) -> bool {
+        if let Some(window) = web_sys::window() {
+            if let Ok(speech) = window.speech_synthesis() {
+                speech.cancel();
+                if let Ok(utterance) = SpeechSynthesisUtterance::new_with_text(text) {
+                    speech.speak(&utterance);
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
+    // Try to play MP3 file
+    if let Ok(audio) = HtmlAudioElement::new() {
+        let mp3_path = text_to_mp3_path(text);
+        audio.set_src(&mp3_path);
+
+        // Add event listener for error to provide fallback to TTS
+        let tts_text = text.to_string();
+        let error_callback = Closure::once(Box::new(move |_: web_sys::Event| {
+            // Error playing audio, fall back to TTS
+            tts_play(&tts_text);
+        }));
+
+        // Attempt to add the error event listener
+        let _ = audio.add_event_listener_with_callback("error", error_callback.as_ref().unchecked_ref());
+
+        // Try to play the audio
+        let _ = audio.play();
+
+        // Assuming it starts playing until we get an error event
+        return true;
+    }
+
+    // Fall back to TTS if we couldn't create the audio element
+    tts_play(text)
+}
 
 #[component]
 pub fn TimerPage() -> impl IntoView {
@@ -86,17 +134,7 @@ pub fn TimerPage() -> impl IntoView {
             spoken_announcements.set_value(spoken);
 
             // Speak the announcement
-            if let Some(window) = web_sys::window() {
-                if let Ok(speech) = window.speech_synthesis() {
-                    // Cancel any ongoing speech
-                    speech.cancel();
-
-                    // Create and speak the new utterance
-                    if let Ok(utterance) = SpeechSynthesisUtterance::new_with_text(text) {
-                        speech.speak(&utterance);
-                    }
-                }
-            }
+            play_audio(text);
         }
     };
 
@@ -121,14 +159,8 @@ pub fn TimerPage() -> impl IntoView {
                 speak(stage_index, &announcement);
             }
             // Handle countdown when approaching the end of a stage
-            if remaining <= 3.0 {
-                speak(stage_index, "3");
-            }
-            if remaining < 2.0 {
-                speak(stage_index, "2");
-            }
-            if remaining <= 1.0 {
-                speak(stage_index, "1");
+            if remaining <= 2.5 {
+                speak(stage_index, "three two one");
             }
         } else {
             speak(0, "Workout Complete");
