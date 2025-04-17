@@ -43,10 +43,14 @@ nix run .#preview
 # Visit http://localhost:8787 in your browser
 ```
 
-To develop the site with live reloads:
+Development is best done by running two commands at the same time:
 
 ```bash
-nix run .#wrangler -- dev
+nix run .#local-dev
+```
+
+```bash
+nix run .#wrangler -- dev --env local
 # Visit http://localhost:8787 in your browser
 ```
 
