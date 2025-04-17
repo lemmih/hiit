@@ -39,18 +39,13 @@ fn play_audio(text: &str) -> bool {
 
         // Add event listener for error to provide fallback to TTS
         let tts_text = text.to_string();
-        let error_callback = Closure::wrap(Box::new(move |_: web_sys::Event| {
+        let error_callback = Closure::once(Box::new(move |_: web_sys::Event| {
             // Error playing audio, fall back to TTS
             tts_play(&tts_text);
-        }) as Box<dyn FnMut(_)>);
+        }));
 
         // Attempt to add the error event listener
-        if audio
-            .add_event_listener_with_callback("error", error_callback.as_ref().unchecked_ref())
-            .is_ok()
-        {
-            error_callback.forget();
-        }
+        let _ = audio.add_event_listener_with_callback("error", error_callback.as_ref().unchecked_ref());
 
         // Try to play the audio
         let _ = audio.play();
