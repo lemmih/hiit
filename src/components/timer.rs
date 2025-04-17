@@ -130,6 +130,8 @@ pub fn TimerPage() -> impl IntoView {
             if remaining <= 1.0 {
                 speak(stage_index, "1");
             }
+        } else {
+            speak(0, "Workout Complete");
         }
     });
 
