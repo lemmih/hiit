@@ -36,7 +36,7 @@ pub fn get_routines() -> Vec<Routine> {
             id: "5".to_string(),
             name: "Full Body".to_string(),
             exercises: vec![
-                "Mountain climber".to_string(),
+                "Mountain climbers".to_string(),
                 "Superman".to_string(),
                 "Inchworm".to_string(),
                 "Burpees".to_string(),
