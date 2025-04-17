@@ -19,6 +19,19 @@ fn text_to_mp3_path(text: &str) -> String {
 
 // Helper function to play audio with TTS fallback
 fn play_audio(text: &str) -> bool {
+    fn tts_play(text: &str) -> bool {
+        if let Some(window) = web_sys::window() {
+            if let Ok(speech) = window.speech_synthesis() {
+                speech.cancel();
+                if let Ok(utterance) = SpeechSynthesisUtterance::new_with_text(text) {
+                    speech.speak(&utterance);
+                    return true;
+                }
+            }
+        }
+        false
+    }
+
     // Try to play MP3 file
     if let Ok(audio) = HtmlAudioElement::new() {
         let mp3_path = text_to_mp3_path(text);
@@ -28,19 +41,14 @@ fn play_audio(text: &str) -> bool {
         let tts_text = text.to_string();
         let error_callback = Closure::wrap(Box::new(move |_: web_sys::Event| {
             // Error playing audio, fall back to TTS
-            if let Some(window) = web_sys::window() {
-                if let Ok(speech) = window.speech_synthesis() {
-                    speech.cancel();
-                    if let Ok(utterance) = SpeechSynthesisUtterance::new_with_text(&tts_text) {
-                        speech.speak(&utterance);
-                    }
-                }
-            }
+            tts_play(&tts_text);
         }) as Box<dyn FnMut(_)>);
 
         // Attempt to add the error event listener
-        if let Ok(_) = audio.add_event_listener_with_callback("error", error_callback.as_ref().unchecked_ref()) {
-            // Keep the closure alive - in a real implementation, we'd need to handle this memory
+        if audio
+            .add_event_listener_with_callback("error", error_callback.as_ref().unchecked_ref())
+            .is_ok()
+        {
             error_callback.forget();
         }
 
@@ -52,20 +60,7 @@ fn play_audio(text: &str) -> bool {
     }
 
     // Fall back to TTS if we couldn't create the audio element
-    if let Some(window) = web_sys::window() {
-        if let Ok(speech) = window.speech_synthesis() {
-            // Cancel any ongoing speech
-            speech.cancel();
-
-            // Create and speak the new utterance
-            if let Ok(utterance) = SpeechSynthesisUtterance::new_with_text(text) {
-                speech.speak(&utterance);
-                return true;
-            }
-        }
-    }
-
-    false // Both audio playback methods failed
+    tts_play(text)
 }
 
 #[component]
