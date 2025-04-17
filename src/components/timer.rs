@@ -58,7 +58,12 @@ pub fn TimerPage() -> impl IntoView {
     let spoken_announcements = StoredValue::new(HashSet::<(usize, String)>::new());
 
     let time_left = move || {
-        routine.read_value().duration() - Duration::from_secs_f64(counter.get() as f64 * interval as f64 / 1000.0)
+        let time_spent = Duration::from_secs_f64(counter.get() as f64 * interval as f64 / 1000.0);
+        routine
+            .read_value()
+            .duration()
+            .checked_sub(time_spent)
+            .unwrap_or_default()
     };
 
     // Format time as MM:SS
@@ -280,14 +285,12 @@ pub fn TimerPage() -> impl IntoView {
                   </button>
                   <button
                     class="hidden py-2 px-4 text-white bg-purple-500 rounded transition-colors hover:bg-purple-600"
-                    on:click={
-                      move |_| {
-                        let mut new_settings = settings.get();
-                        new_settings
-                          .routine_completions
-                          .insert(routine.get_value().name.clone(), Utc::now());
-                        update_settings.run(new_settings);
-                      }
+                    on:click=move |_| {
+                      let mut new_settings = settings.get();
+                      new_settings
+                        .routine_completions
+                        .insert(routine.get_value().name.clone(), Utc::now());
+                      update_settings.run(new_settings);
                     }
                   >
                     "Debug: Mark Complete"
