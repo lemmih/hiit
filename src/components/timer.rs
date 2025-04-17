@@ -23,7 +23,7 @@ fn play_audio(text: &str) -> bool {
 
     // Static audio element that will be initialized once
     thread_local! {
-        static AUDIO_ELEMENT: RefCell<Option<HtmlAudioElement>> = RefCell::new(None);
+        static AUDIO_ELEMENT: RefCell<Option<HtmlAudioElement>> = const { RefCell::new(None) };
     }
 
     fn tts_play(text: &str) -> bool {
