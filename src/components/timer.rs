@@ -12,13 +12,13 @@ use web_sys::{HtmlAudioElement, SpeechSynthesisUtterance};
 use super::settings::SettingsContext;
 
 // Helper function to convert announcement text to MP3 file path
-fn text_to_mp3_path(text: &str) -> String {
+fn text_to_mp3_path(text: &str, voice: &str) -> String {
     let filename = text.to_lowercase().replace(' ', "_");
-    format!("/audio/{}_freya.mp3", filename)
+    format!("/audio/{}_{}.mp3", filename, voice.to_lowercase())
 }
 
 // Helper function to play audio with TTS fallback
-fn play_audio(text: &str) -> bool {
+fn play_audio(text: &str, voice: &str) -> bool {
     use std::cell::RefCell;
 
     // Static audio element that will be initialized once
@@ -49,7 +49,7 @@ fn play_audio(text: &str) -> bool {
 
         // Try to play MP3 file using our static audio element
         if let Some(audio) = audio_cell.borrow().as_ref() {
-            let mp3_path = text_to_mp3_path(text);
+            let mp3_path = text_to_mp3_path(text, voice);
             audio.set_src(&mp3_path);
 
             // Add event listener for error to provide fallback to TTS
@@ -151,8 +151,11 @@ pub fn TimerPage() -> impl IntoView {
             spoken.insert(announcement_key);
             spoken_announcements.set_value(spoken);
 
-            // Speak the announcement
-            play_audio(text);
+            // Get the voice from settings
+            let voice = &settings.get_untracked().voice;
+
+            // Speak the announcement with the selected voice
+            play_audio(text, voice);
         }
     };
 

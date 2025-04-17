@@ -9,6 +9,7 @@ pub struct WorkoutSettings {
     pub rest_set_duration_secs: u32,
     pub sets: u32,
     pub routine_completions: HashMap<String, DateTime<Utc>>,
+    pub voice: String,
 }
 
 impl Default for WorkoutSettings {
@@ -19,6 +20,7 @@ impl Default for WorkoutSettings {
             rest_set_duration_secs: 30,
             sets: 3,
             routine_completions: HashMap::new(),
+            voice: "freya".to_string(),
         }
     }
 }
@@ -43,12 +45,13 @@ impl serde::Serialize for WorkoutSettings {
         S: serde::Serializer,
     {
         use serde::ser::SerializeStruct;
-        let mut state = serializer.serialize_struct("WorkoutSettings", 5)?;
+        let mut state = serializer.serialize_struct("WorkoutSettings", 6)?;
         state.serialize_field("high_intensity_duration_secs", &self.high_intensity_duration_secs)?;
         state.serialize_field("rest_exercise_duration_secs", &self.rest_exercise_duration_secs)?;
         state.serialize_field("rest_set_duration_secs", &self.rest_set_duration_secs)?;
         state.serialize_field("sets", &self.sets)?;
         state.serialize_field("routine_completions", &self.routine_completions)?;
+        state.serialize_field("voice", &self.voice)?;
         state.end()
     }
 }
@@ -72,6 +75,8 @@ impl<'de> serde::Deserialize<'de> for WorkoutSettings {
             sets: u32,
             #[serde(default)]
             routine_completions: HashMap<String, DateTime<Utc>>,
+            #[serde(default = "default_voice")]
+            voice: String,
         }
 
         // Helper functions to provide default values
@@ -91,6 +96,10 @@ impl<'de> serde::Deserialize<'de> for WorkoutSettings {
             WorkoutSettings::default().sets
         }
 
+        fn default_voice() -> String {
+            WorkoutSettings::default().voice
+        }
+
         let helper = SettingsHelper::deserialize(deserializer)?;
 
         Ok(WorkoutSettings {
@@ -99,6 +108,7 @@ impl<'de> serde::Deserialize<'de> for WorkoutSettings {
             rest_set_duration_secs: helper.rest_set_duration_secs,
             sets: helper.sets,
             routine_completions: helper.routine_completions,
+            voice: helper.voice,
         })
     }
 }
@@ -344,6 +354,27 @@ pub fn SettingsPage() -> impl IntoView {
             step=1
             unit="".to_string()
           />
+
+          <div class="mb-6">
+            <label for="voice-select" class="block mb-2 text-sm font-medium text-gray-700">
+              Voice
+            </label>
+            <select
+              id="voice-select"
+              class="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+              on:change=move |ev| {
+                let value = event_target_value(&ev);
+                update_settings.run(WorkoutSettings {
+                  voice: value,
+                  ..settings.get()
+                });
+              }
+              prop:value=move || settings.get().voice
+            >
+              <option value="freya" selected=move || settings.get().voice == "freya">Freya</option>
+              <option value="vlad" selected=move || settings.get().voice == "vlad">Vlad</option>
+            </select>
+          </div>
         </div>
 
         <div class="text-center">
@@ -453,6 +484,7 @@ mod tests {
             rest_set_duration_secs: 20,
             sets: 4,
             routine_completions,
+            voice: "freya".to_string(),
         };
 
         // Serialize to JSON
@@ -485,6 +517,7 @@ mod tests {
             rest_set_duration_secs: 30,
             sets: 5,
             routine_completions,
+            voice: "freya".to_string(),
         };
 
         // Serialize and then deserialize
@@ -558,12 +591,18 @@ mod tests {
                 routine_completions.insert(format!("routine{}", i), timestamp);
             }
 
+            // Choose a random voice from the available options
+            let voices = ["freya", "vlad"];
+            let voice_index = usize::arbitrary(g) % voices.len();
+            let voice = voices[voice_index].to_string();
+
             WorkoutSettings {
                 high_intensity_duration_secs: high_intensity,
                 rest_exercise_duration_secs: rest_exercise,
                 rest_set_duration_secs: rest_set,
                 sets,
                 routine_completions,
+                voice,
             }
         }
     }
