@@ -73,3 +73,7 @@ ssr = [
   "getrandom/js",
   "leptos-use/ssr",
 ]
+
+[dev-dependencies]
+quickcheck = "1.0"
+quickcheck_macros = "1.0"
