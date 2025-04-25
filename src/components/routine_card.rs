@@ -121,6 +121,14 @@ fn format_last_completion(last_completion: Option<DateTime<Utc>>, current_time: 
     }
 }
 
+// Add this helper function above the RoutineCard component
+fn format_duration(duration: Duration) -> String {
+    let total_seconds = duration.as_secs();
+    let minutes = total_seconds / 60;
+    let seconds = total_seconds % 60;
+    format!("{:02}:{:02}", minutes, seconds)
+}
+
 #[component]
 pub fn RoutineCard(
     #[prop(into)] routine: StoredValue<Routine>,
@@ -157,7 +165,7 @@ pub fn RoutineCard(
           <p class="mb-3 text-gray-700">{routine.get_value().description()}</p>
           <div class="flex justify-between items-center">
             <span class="py-0.5 px-2.5 text-xs font-semibold text-blue-800 bg-blue-100 rounded">
-              {move || format!("{} seconds", routine.get_value().duration().as_secs())}
+              {move || format_duration(routine.get_value().duration())}
             </span>
             {move || {
               if let Some(completion_time) = last_completion() {
