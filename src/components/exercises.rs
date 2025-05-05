@@ -8,7 +8,7 @@ pub struct Exercise {
     pub description: &'static str,
 }
 
-pub const EXERCISES: [Exercise; 21] = [
+pub const EXERCISES: [Exercise; 22] = [
     Exercise {
         group: "Upper Body",
         name: "Push ups",
@@ -268,6 +268,20 @@ pub const EXERCISES: [Exercise; 21] = [
             cushion under your sitting bones. For a deeper stretch, gently press down on your inner thighs or \
             extend your torso forward while maintaining a straight back.",
     },
+    Exercise {
+        group: "Mobility",
+        name: "90/90 Hip Stretch",
+        description: "Sit on the floor with one leg bent in front of you at a 90-degree angle, \
+             with your shin parallel to your hips. Position your other leg to the side, also bent \
+             at 90 degrees with your shin parallel behind you. Keep your back straight and sit tall. \
+             Your front foot should be flexed, and your back foot can be relaxed. Lean forward slightly \
+             over your front leg while maintaining a straight back, feeling the stretch in your outer hip. \
+             Hold this position for several breaths. To deepen the stretch, you can lean forward more or \
+             gently press down on your front thigh. Switch sides by rotating your body and repositioning \
+             your legs to stretch the opposite hip. For beginners, use your hands for support and don't \
+             lean too far forward. For increased difficulty, try transitioning smoothly between sides or \
+             hold the position longer.",
+    }
 ];
 
 #[component]

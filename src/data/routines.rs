@@ -49,7 +49,7 @@ pub fn get_routines() -> Vec<Routine> {
                 "Squat to Toe Touch".to_string(),
                 "Downward to Upward Dog".to_string(),
                 "Lunge and Reach".to_string(),
-                "Modified Butterfly Sit".to_string(),
+                "90/90 Hip Stretch".to_string(),
             ],
         },
     ]
