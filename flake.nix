@@ -393,7 +393,7 @@
                 mkdir -p build/assets
 
                 # Build client and server WASM in parallel
-                time parallel ::: ${compile-css}/bin/compile-css ${compile-client}/bin/compile-client ${compile-server}/bin/compile-server
+                time ${pkgs.parallel}/bin/parallel ::: ${compile-css}/bin/compile-css ${compile-client}/bin/compile-client ${compile-server}/bin/compile-server
 
                 # Copy static files
                 echo "Copying static files..."
