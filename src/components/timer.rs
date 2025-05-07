@@ -13,7 +13,7 @@ use super::settings::SettingsContext;
 
 // Helper function to convert announcement text to MP3 file path
 fn text_to_mp3_path(text: &str, voice: &str) -> String {
-    let filename = text.to_lowercase().replace(' ', "_").replace('/', "_");
+    let filename = text.to_lowercase().replace([' ', '/'], "_");
     format!("/audio/{}_{}.mp3", filename, voice.to_lowercase())
 }
 
