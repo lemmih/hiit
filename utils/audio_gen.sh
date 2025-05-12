@@ -56,9 +56,12 @@ TEXTS=(
 generate_filename() {
     local text="$1"
     local voice="$2"
-    # Convert to lowercase, replace spaces and punctuation with underscore
-    local filename
-    filename=$(echo "$text" | tr '[:upper:]' '[:lower:]' | tr '[:punct:][:space:]' '_' | tr --squeeze-repeats '_' | sed 's/_*$//')
+    local filename="${text,,}"                     # lowercase
+    filename="${filename//[[:punct:][:space:]]/_}" # replace punctuation/space
+    while [[ $filename =~ __ ]]; do                # loop until no more repeats
+        filename="${filename//__/_}"               # squeeze repeats
+    done
+    filename="${filename%%_}" # trim trailing underscore
     echo "${filename}_${voice}.mp3"
 }
 
