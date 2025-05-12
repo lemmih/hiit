@@ -172,13 +172,12 @@ generate_audio() {
     echo "Generating audio for '$text' using voice '$voice'..." >&2
 
     # Call ElevenLabs API to generate audio
-    local response
-    response=$(curl -s -X POST \
+    curl -s -X POST \
         -H "xi-api-key: $api_key" \
         -H "Content-Type: application/json" \
         -d "{\"text\":\"$text\", \"model_id\":\"eleven_multilingual_v2\"}" \
         "https://api.elevenlabs.io/v1/text-to-speech/$voice_id?output_format=mp3_44100_128" \
-        --output "$output_file")
+        --output "$output_file"
 
     if [[ ! -f "$output_file" || ! -s "$output_file" ]]; then
         echo "Error: Failed to generate audio file" >&2
