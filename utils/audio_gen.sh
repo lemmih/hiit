@@ -12,6 +12,14 @@ set -u
 # Exit if any command in a pipe fails
 set -o pipefail
 
+# Check for required dependencies
+for cmd in curl jq; do
+    if ! command -v "$cmd" &>/dev/null; then
+        echo "Error: Required command '$cmd' is not installed" >&2
+        exit 1
+    fi
+done
+
 VOICES=("freya" "vlad")
 
 TEXTS=(
